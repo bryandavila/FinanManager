@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Desglose de Gastos por Categoría";
+}
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+@section PageScripts {
+    <script src="~/js/DesgloseGastos.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Desglose de Gastos por Categoría</h4>
+        </div>
+    </div>
+
+    <!-- Filtros Avanzados -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filtros Avanzados</h5>
+                    <form id="filtroForm" onsubmit="return false;">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="categoria" class="form-label">Categoría</label>
+                                <select id="categoria" name="categoria" class="form-select">
+                                    <option value="">Todas</option>
+                                    <option value="Oficina">Oficina</option>
+                                    <option value="Infraestructura">Infraestructura</option>
+                                    <!-- Agrega más categorías aquí -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="fechaDesde" class="form-label">Fecha Desde</label>
+                                <input type="date" id="fechaDesde" name="fechaDesde" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="fechaHasta" class="form-label">Fecha Hasta</label>
+                                <input type="date" id="fechaHasta" name="fechaHasta" class="form-control">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="aplicarFiltros()">Aplicar Filtros</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desglose de Gastos por Categoría -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gastos por Categoría</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nombre del Gasto</th>
+                                    <th>Categoría</th>
+                                    <th>Cantidad</th>
+                                    <th>Justificación</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gastosTableBody">
+                                <!-- Datos de ejemplo -->
+                                <tr>
+                                    <td>Compra de Material</td>
+                                    <td>Oficina</td>
+                                    <td>$300</td>
+                                    <td>Material de oficina necesario</td>
+                                    <td>2024-12-01</td>
+                                </tr>
+                                <tr>
+                                    <td>Mantenimiento</td>
+                                    <td>Infraestructura</td>
+                                    <td>$500</td>
+                                    <td>Reparación de equipos</td>
+                                    <td>2024-12-03</td>
+                                </tr>
+                                <!-- Agrega más filas aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function aplicarFiltros() {
+        var categoria = document.getElementById("categoria").value;
+        var fechaDesde = document.getElementById("fechaDesde").value;
+        var fechaHasta = document.getElementById("fechaHasta").value;
+
+        var rows = document.querySelectorAll("#gastosTableBody tr");
+
+        rows.forEach(function (row) {
+            var categoriaRow = row.cells[1].innerText;
+            var fechaRow = row.cells[4].innerText;
+
+            var showRow = true;
+
+            if (categoria && categoria !== categoriaRow) {
+                showRow = false;
+            }
+
+            if (fechaDesde && fechaRow < fechaDesde) {
+                showRow = false;
+            }
+
+            if (fechaHasta && fechaRow > fechaHasta) {
+                showRow = false;
+            }
+
+            row.style.display = showRow ? "" : "none";
+        });
+    }
+</script>

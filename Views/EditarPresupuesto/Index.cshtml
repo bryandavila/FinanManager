@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Editar Presupuesto";
+}
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+    <link rel="stylesheet" href="~/css/CrearPresupuesto.css" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4 text-primary text-center">Editar Presupuesto</h4>
+        </div>
+    </div>
+
+    <!-- Selección de tipo de presupuesto -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-6">
+            <label for="tipoPresupuesto" class="form-label fw-bold">Seleccione el tipo de presupuesto:</label>
+            <select class="form-select shadow-sm" id="tipoPresupuesto">
+                <option value="Bienes" selected>Bienes</option>
+                <option value="Gastos">Gastos</option>
+                <option value="Proyectos">Proyectos</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Formulario de edición de presupuesto -->
+    <div id="formularioPresupuesto" class="row justify-content-center">
+        <!-- Datos llenados con valores predeterminados -->
+        <div class="col-12">
+            <h5>Formulario de Edición de Presupuesto</h5>
+            <form>
+                <div class="mb-3">
+                    <label for="tipoBien" class="form-label">Tipo</label>
+                    <input type="text" class="form-control" id="tipoBien" value="Equipos de oficina" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="descripcionBien" class="form-label">Descripción</label>
+                    <input type="text" class="form-control" id="descripcionBien" value="Compra de equipos de oficina nuevos">
+                </div>
+                <div class="mb-3">
+                    <label for="proyecciones" class="form-label">Proyecciones</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Cantidad</span>
+                        <input type="number" class="form-control" id="cantidadProyeccion" value="10">
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Monto Unitario</span>
+                        <input type="number" class="form-control" id="montoUnitarioProyeccion" value="500">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text">Monto Total</span>
+                        <input type="number" class="form-control" id="montoTotalProyeccion" value="5000" readonly>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="periodoEjecucion" class="form-label">Periodo de Ejecución</label>
+                    <div id="periodoEjecucion" class="checkbox-container">
+                        <div class="checkbox-item"><label><input type="checkbox" value="Enero"> Enero</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Febrero"> Febrero</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Marzo"> Marzo</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Abril"> Abril</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Mayo"> Mayo</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Junio"> Junio</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Julio"> Julio</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Agosto"> Agosto</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Septiembre"> Septiembre</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Octubre"> Octubre</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Noviembre"> Noviembre</label></div>
+                        <div class="checkbox-item"><label><input type="checkbox" value="Diciembre"> Diciembre</label></div>
+                    </div>
+
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/js/EditarPresupuesto.js"></script>
+}

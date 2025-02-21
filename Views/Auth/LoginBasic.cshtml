@@ -1,0 +1,65 @@
+@{
+    Layout = "_BlankLayout";
+    ViewData["Title"] = "Login - Página de Acceso";
+}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+            <div class="card px-sm-6 px-0">
+                <div class="card-body">
+                    <div class="logo-container" style="text-align: center; padding: 20px 0;">
+                        <img src="/img/Logo/logo.jpg" alt="Logo" style="width: 125px;">
+                    </div>
+                    <h4 class="mb-1">Bienvenido a FinanManager 👋</h4>
+                    <p class="mb-6">Inicia sesión con tu cuenta</p>
+                    <form method="post" action="@Url.Action("LoginBasic", "Auth")">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-8">
+                            <div class="d-flex justify-content-between mt-8">
+                                <div class="form-check mb-0 ms-2">
+                                    <input class="form-check-input" type="checkbox" id="remember-me">
+                                    <label class="form-check-label" for="remember-me">
+                                        Recordarme
+                                    </label>
+                                </div>
+                                <a href="/Auth/ForgotPasswordBasic">
+                                    <span>¿Olvidaste la contraseña?</span>
+                                </a>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+                    </form>
+
+                    <!-- Mensajes de éxito y error -->
+                    <div style="margin-top: 20px;">
+                        <!-- Agregamos un margen superior de 20px -->
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success" role="alert">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+                        @if (TempData["SessionExpired"] != null)
+                        {
+                            <div class="alert alert-warning">
+                                @TempData["SessionExpired"]
+                            </div>
+                        }
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

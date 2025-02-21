@@ -1,0 +1,46 @@
+@model IEnumerable<FinanManager.Models.PresupuestoViewModel>
+
+@{
+	ViewData["Title"] = "Presupuestos Enviados";
+}
+
+<h2>Presupuestos Enviados</h2>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Tipo</th>
+			<th>Descripción</th>
+			<th>Fecha</th>
+			<th>Estado</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>@item.Tipo</td>
+				<td>@item.Descripcion</td>
+				<td>@item.Fecha.ToShortDateString()</td>
+				<td>
+					@switch (item.Estado)
+					{
+						case 1:
+							<span class="text-danger">Rechazado</span>
+							break;
+						case 2:
+							<span class="text-warning">Pendiente</span>
+							break;
+						case 3:
+							<span class="text-success">Aprobado</span>
+							break;
+					}
+				</td>
+				<td>
+					<a asp-action="Detalles" asp-route-id="@item.Id" asp-route-tipo="@item.Tipo" class="btn btn-info">Detalles</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

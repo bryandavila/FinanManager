@@ -1,0 +1,156 @@
+@{
+    ViewData["Title"] = "Gestión de Presupuestos";
+}
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+@section PageScripts {
+    <script src="~/js/GestionPresupuesto.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gestión de Presupuestos</h4>
+        </div>
+    </div>
+
+    <!-- Opciones de Gestión -->
+    <div class="row">
+        <!-- Crear nuevo presupuesto -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Crear Nuevo Presupuesto</h5>
+                    <p class="card-text">Accede al formulario para crear un presupuesto para el próximo período.</p>
+                    <a href="/CrearPresupuesto/Index" class="btn btn-primary">Crear Presupuesto</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ver presupuestos enviados -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ver Presupuestos Enviados</h5>
+                    <p class="card-text">Consulta el estado de los presupuestos enviados.</p>
+                    <a href="/VerPresupuesto/Index" class="btn btn-info">Ver Presupuestos Enviados</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de presupuestos pendientes (para el área financiera) -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Presupuestos Pendientes de Aprobación</h5>
+                    <p class="card-text">Lista de presupuestos pendientes de aprobación.</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Tipo Presupuesto</th>
+                                <th>Departamento</th>
+                                <th>Fecha de Envío</th>
+                                <th>Monto Solicitado</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos de ejemplo -->
+                            <tr>
+                                <td>Bienes</td>
+                                <td>Departamento TI</td>
+                                <td>01/12/2024</td>
+                                <td>$5,000</td>
+                                <td>Pendiente</td>
+                                <td>
+                                    <a href="/VerPresupuesto/Index" class="btn btn-warning">Revisar</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Gasto</td>
+                                <td>Departamento TI</td>
+                                <td>02/12/2024</td>
+                                <td>$2,000</td>
+                                <td>Pendiente</td>
+                                <td>
+                                    <a href="/VerPresupuesto/Index" class="btn btn-warning">Revisar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de presupuestos rechazados (para su edición) -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Presupuestos Rechazados</h5>
+                    <p class="card-text">Lista de presupuestos rechazados que puedes corregir y reenviar.</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Presupuesto</th>
+                                <th>Fecha de Rechazo</th>
+                                <th>Motivos de Rechazo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos de ejemplo -->
+                            <tr>
+                                <td>Bienes</td>
+                                <td>03/12/2024</td>
+                                <td>Faltan detalles de presupuesto</td>
+                                <td>
+                                    <a href="/EditarPresupuesto/Index" class="btn btn-success">Editar</a>
+                                    <a href="#" class="btn btn-primary">Reenviar</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Proyecto</td>
+                                <td>04/12/2024</td>
+                                <td>Falta aclaraciones de viabilidad</td>
+                                <td>
+                                    <a href="/EditarPresupuesto/Index" class="btn btn-success">Editar</a>
+                                    <a href="#" class="btn btn-primary">Reenviar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones de presupuestos -->
+    <div class="row">
+        <div class="col-12">
+            <h5>Notificaciones</h5>
+            <div class="alert alert-success">
+                <strong>Presupuesto Aprobado:</strong> Tu presupuesto ha sido aprobado.
+            </div>
+            <div class="alert alert-danger">
+                <strong>Presupuesto Rechazado:</strong> Tu presupuesto ha sido rechazado. Revisa los motivos de rechazo.
+            </div>
+            <div class="alert alert-warning">
+                <strong>Presupuesto Pendiente:</strong> Tu presupuesto está pendiente de revisión.
+            </div>
+        </div>
+    </div>
+</div>

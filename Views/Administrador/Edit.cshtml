@@ -1,0 +1,92 @@
+@model FinanManager.Models.User
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+
+    // Obtener la lista de roles desde la base de datos
+    var roles = new List<SelectListItem>
+{
+    new SelectListItem { Value = "1", Text = "Administrador" },
+    new SelectListItem { Value = "2", Text = "Jefe Financiero" },
+    new SelectListItem { Value = "3", Text = "Jefe Operaciones" },
+    new SelectListItem { Value = "4", Text = "TI" },
+    new SelectListItem { Value = "5", Text = "Plataformas" },
+    new SelectListItem { Value = "6", Text = "Seguros" },
+    new SelectListItem { Value = "7", Text = "Cobros" },
+    new SelectListItem { Value = "8", Text = "UEA" },
+    new SelectListItem { Value = "9", Text = "Crédito" },
+    new SelectListItem { Value = "10", Text = "SBD" },
+    new SelectListItem { Value = "11", Text = "Contabilidad" },
+    new SelectListItem { Value = "12", Text = "Captación" },
+    new SelectListItem { Value = "13", Text = "Medios Electrónicos" },
+    new SelectListItem { Value = "14", Text = "Auditoría Interna" },
+    new SelectListItem { Value = "15", Text = "Oficialía de Cumplimiento" },
+    new SelectListItem { Value = "16", Text = "Unidad de Riesgos" },
+    new SelectListItem { Value = "17", Text = "Gerencias" },
+    new SelectListItem { Value = "18", Text = "Recursos Humanos" },
+    new SelectListItem { Value = "19", Text = "Inteligencia Comercial" },
+    new SelectListItem { Value = "20", Text = "Mercadeo" },
+    new SelectListItem { Value = "21", Text = "Contact Center" },
+	new SelectListItem { Value = "22", Text = "Sin Acceso" }
+};
+
+
+    var estados = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "1", Text = "Activo" },
+        new SelectListItem { Value = "0", Text = "Inactivo" }
+    };
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Editar Usuario</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Detalles del Usuario</h5>
+                    <form asp-action="Edit" method="post">
+                        <div class="mb-3">
+                            <input type="hidden" asp-for="Users_Id" class="form-control" />
+                            <span asp-validation-for="Users_Id" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="UserEmail" class="form-label"></label>
+                            <input asp-for="UserEmail" class="form-control" />
+                            <span asp-validation-for="UserEmail" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="role_ID" class="form-label"></label>
+                            <select asp-for="role_ID" class="form-select" asp-items="roles"></select>
+                            <span asp-validation-for="role_ID" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="UserStatus" class="form-label"></label>
+                            <select asp-for="UserStatus" class="form-select" asp-items="estados"></select>
+                            <span asp-validation-for="UserStatus" class="text-danger"></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="Administrador" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,140 @@
+body {
+  background-color: #f8f9fa; /* Fondo claro */
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Título principal */
+h4 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #007bff; /* Color azul */
+}
+
+/* Etiquetas y selects */
+label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+}
+
+select {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+  select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+  }
+
+/* Contenedores del formulario dinámico */
+.form-label {
+  color: #444;
+}
+
+.form-control {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.6rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+
+textarea {
+  resize: none;
+}
+
+button.btn-primary {
+  background-color: #007bff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+  button.btn-primary:hover {
+    background-color: #0056b3;
+    cursor: pointer;
+  }
+
+/* Espaciado general */
+.mb-3 {
+  margin-bottom: 1.5rem;
+}
+
+.row {
+  margin-bottom: 1rem;
+}
+
+/* Para ajustar el diseño del formulario */
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor de checkboxes */
+.checkbox-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; /* Espaciado entre checkboxes */
+  margin-top: 1rem;
+}
+
+/* Estilo general de cada checkbox */
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+}
+
+  /* Personalización del checkbox */
+  .checkbox-item input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+    .checkbox-item input[type="checkbox"]:checked {
+      background-color: #007bff;
+      border-color: #0056b3;
+      position: relative;
+    }
+
+      .checkbox-item input[type="checkbox"]:checked::after {
+        content: '✔';
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+    /* Mejoras en la apariencia al pasar el cursor */
+    .checkbox-item input[type="checkbox"]:hover {
+      border-color: #0056b3;
+    }
+
+/* Para alinearlos dentro del formulario */
+.checkbox-container label {
+  cursor: pointer;
+}

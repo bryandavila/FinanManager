@@ -1,0 +1,151 @@
+/* General */
+body {
+  background-color: #F7F7F7;
+  font-family: "Open Sans", sans-serif;
+  color: #333333;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Contenedor principal */
+.container-xxl {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Títulos */
+h4 {
+  font-family: "Roboto", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #6A5AFF;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Secciones de presupuesto */
+h5 {
+  font-size: 1.4rem;
+  color: #333333;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Listas y elementos de la lista */
+ul.list-group {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.list-group-item {
+  background-color: #F9F9F9;
+  border: 1px solid #DDD;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+}
+
+  .list-group-item strong {
+    font-weight: 700;
+    color: #333333;
+  }
+
+/* Detalle de los proyectos */
+.card {
+  margin-top: 2rem;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  background-color: #F4F6F9;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+  .card-body ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 1rem;
+  }
+
+  .card-body li {
+    margin-bottom: 0.5rem;
+    color: #333333;
+    font-weight: 600;
+  }
+
+/* Estado del presupuesto */
+.state-badge {
+  background-color: #FFDD57; /* Amarillo */
+  padding: 0.3rem 1rem;
+  border-radius: 5px;
+  color: #333333;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 1rem;
+}
+
+/* Tabla de detalles (si la agregas) */
+table {
+  width: 100%;
+  margin-top: 2rem;
+  border-collapse: collapse;
+  background-color: #FFFFFF;
+}
+
+  table th, table td {
+    padding: 1rem;
+    border: 1px solid #DDD;
+    text-align: left;
+  }
+
+  table th {
+    background-color: #6A5AFF;
+    color: white;
+    font-weight: 700;
+  }
+
+  table tr:nth-child(even) {
+    background-color: #F7F7F7;
+  }
+
+  table tr:hover {
+    background-color: #E6E6FF;
+  }
+
+/* Enlace de regreso */
+.back-link {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6A5AFF;
+  text-decoration: none;
+  margin-top: 1.5rem;
+}
+
+  .back-link:hover {
+    text-decoration: underline;
+    color: #333333;
+  }
+
+/* Ajustes generales para columnas */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.col-md-6 {
+  flex: 1 1 calc(50% - 1rem);
+}
+
+.col-12 {
+  flex: 1;
+}

@@ -1,0 +1,153 @@
+@{
+    ViewData["Title"] = "Seguimiento de Gastos";
+}
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+@section VendorScripts {
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+@section PageScripts {
+    <script src="~/js/SeguimientoGastos.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Seguimiento de Gastos</h4>
+        </div>
+    </div>
+
+    <!-- Resumen de Gastos -->
+    <div class="row">
+        <!-- Desglose por Categoría -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Desglose de Gastos por Categoría</h5>
+                    <p class="card-text">Consulta un desglose detallado de tus gastos por cada categoría.</p>
+                    <a href="@Url.Action("Index", "ResumenGastos")" class="btn btn-primary">Ver Desglose</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos de Gastos -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gráficos de Gastos</h5>
+                    <p class="card-text">Visualiza los gastos en gráficos, destacando la categoría con mayores gastos.</p>
+                    <a href="@Url.Action("Index", "GraficosGastos")" class="btn btn-info">Ver Gráficos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles Mensuales -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Detalle de Gastos por Mes</h5>
+                    <p class="card-text">Consulta los gastos mensuales con su justificación.</p>
+                    <table class="table table-bordered" id="gastosMensuales">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Gasto</th>
+                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                                <th>Justificación</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos de ejemplo -->
+                            <tr>
+                                <td>Compra de Material</td>
+                                <td>Oficina</td>
+                                <td>$300</td>
+                                <td>Material de oficina necesario</td>
+                                <td>01/12/2024</td>
+                            </tr>
+                            <tr>
+                                <td>Mantenimiento</td>
+                                <td>Infraestructura</td>
+                                <td>$500</td>
+                                <td>Reparación de equipos</td>
+                                <td>03/12/2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="#" class="btn btn-primary mt-3" id="exportPdfBtn">Exportar a PDF</a>
+                    <a href="#" class="btn btn-success mt-3">Exportar a Excel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparaciones -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Comparación de Gastos entre Meses</h5>
+                    <p class="card-text">Compara tus gastos entre dos o más meses.</p>
+                    <div id="comparisonChart" style="height: 300px;"></div>
+                    <a href="#" class="btn btn-info mt-3">Realizar Comparación</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Planificado vs Real -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gastos Planificados vs Reales</h5>
+                    <p class="card-text">Compara los gastos planificados con los gastos reales para optimizar tu presupuesto.</p>
+                    <div id="plannedVsActualChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div class="row">
+        <div class="col-12">
+            <h5>Notificaciones</h5>
+            <div class="alert alert-success">
+                <strong>Actualización Exitosa:</strong> Los datos de gastos han sido actualizados correctamente.
+            </div>
+            <div class="alert alert-danger">
+                <strong>Error de Carga:</strong> No se pudieron cargar algunos datos. Reintente más tarde.
+            </div>
+            <div class="alert alert-warning">
+                <strong>Comparación Incompleta:</strong> Aún no tienes datos suficientes para comparar todos los meses seleccionados.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('exportPdfBtn').addEventListener('click', function () {
+        var { jsPDF } = window.jspdf;
+
+        var doc = new jsPDF();
+
+        doc.autoTable({
+            html: '#gastosMensuales',
+            styles: { fontSize: 10 }
+        });
+
+        doc.save('Detalle_Gastos_Mensuales.pdf');
+    });
+</script>

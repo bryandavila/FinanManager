@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "Gráficos de Gastos por Categoría";
+}
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+    <!-- Script de ApexCharts desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Script de jsPDF desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gráficos de Gastos por Categoría</h4>
+        </div>
+    </div>
+
+    <!-- Gráfico de Gastos por Categoría -->
+    <div class="row">
+        <div class="col-12">
+            <div id="chart"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var options = {
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            series: [{
+                name: 'Gastos',
+                data: [300, 500] // Datos de ejemplo: reemplázalos con tus datos
+            }],
+            title: {
+                text: 'Gastos por Categoría'
+            },
+            xaxis: {
+                categories: ['Oficina', 'Infraestructura'] // Categorías
+            },
+            toolbar: {
+                show: true,
+                tools: {
+                    download: ['png', 'csv']
+                }
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    });
+</script>

@@ -1,0 +1,299 @@
+@{
+    ViewData["Title"] = "Gestión Financiera";
+}
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+    <link rel="stylesheet" href="~/vendor/libs/bootstrap/bootstrap.min.css" />
+}
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="~/vendor/libs/bootstrap/bootstrap.bundle.min.js"></script>
+}
+@section PageScripts {
+    <script src="~/js/GestionFinanciera.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gestión Financiera</h4>
+        </div>
+    </div>
+
+    <!-- Descarga de reportes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Descarga de reportes</h5>
+                </div>
+                <div class="card-body">
+                    <p>Selecciona el reporte que deseas descargar según el rango de tiempo o categoría específica.</p>
+                    <div class="accordion" id="accordionReportes">
+                        <!-- Reporte anual -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingAnual">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAnual" aria-expanded="true" aria-controls="collapseAnual">
+                                    Reporte anual
+                                </button>
+                            </h2>
+                            <div id="collapseAnual" class="accordion-collapse collapse show" aria-labelledby="headingAnual" data-bs-parent="#accordionReportes">
+                                <div class="accordion-body">
+                                    <p>Genera y descarga el reporte anual de gastos organizados por departamento.</p>
+                                    <a href="#" class="btn btn-primary">Descargar reporte anual</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Reporte mensual -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingMensual">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMensual" aria-expanded="false" aria-controls="collapseMensual">
+                                    Reporte mensual
+                                </button>
+                            </h2>
+                            <div id="collapseMensual" class="accordion-collapse collapse" aria-labelledby="headingMensual" data-bs-parent="#accordionReportes">
+                                <div class="accordion-body">
+                                    <p>Genera y descarga un reporte mensual detallado de gastos por categoría.</p>
+                                    <a href="#" class="btn btn-info">Descargar reporte mensual</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Reporte diario -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingDiario">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDiario" aria-expanded="false" aria-controls="collapseDiario">
+                                    Reporte diario
+                                </button>
+                            </h2>
+                            <div id="collapseDiario" class="accordion-collapse collapse" aria-labelledby="headingDiario" data-bs-parent="#accordionReportes">
+                                <div class="accordion-body">
+                                    <p>Descarga el reporte detallado de los gastos diarios de la organización.</p>
+                                    <a href="#" class="btn btn-success">Descargar reporte diario</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones de cambios no contemplados -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Notificaciones de cambios no contemplados</h4>
+        </div>
+    </div>
+
+    <!-- Lista de notificaciones -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lista de notificaciones</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Departamento</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Ejemplo de datos -->
+                            <tr>
+                                <td>Incremento de presupuesto sin autorización</td>
+                                <td>Recursos Humanos</td>
+                                <td>$2,500</td>
+                                <td>05/12/2024</td>
+                                <td>
+                                    <a href="/Financiero/DetalleNotificacionView?id=1" class="btn btn-info btn-sm">Ver Detalle</a>
+                                    <button class="btn btn-success btn-sm">Marcar como leído</button>
+                                    <button class="btn btn-danger btn-sm">Ignorar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Cambio de partida presupuestal</td>
+                                <td>Marketing</td>
+                                <td>$1,200</td>
+                                <td>03/12/2024</td>
+                                <td>
+                                    <a href="/Financiero/DetalleNotificacionView?id=2" class="btn btn-info btn-sm">Ver Detalle</a>
+                                    <button class="btn btn-success btn-sm">Marcar como leído</button>
+                                    <button class="btn btn-danger btn-sm">Ignorar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presupuestos pendientes de aprobación -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Presupuestos pendientes de aprobación</h4>
+        </div>
+    </div>
+
+    <!-- Aprobación de Presupuestos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lista de presupuestos que requieren tu revisión y aprobación.</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Presupuesto</th>
+                                <th>Departamento</th>
+                                <th>Monto Solicitado</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos de ejemplo -->
+                            <tr>
+                                <td>Presupuesto A</td>
+                                <td>Departamento A</td>
+                                <td>$5,000</td>
+                                <td>Pendiente</td>
+                                <td>
+                                    <button class="btn btn-warning">Revisar</button>
+                                    <button class="btn btn-success">Aprobar</button>
+                                    <button class="btn btn-danger">Rechazar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Presupuesto B</td>
+                                <td>Departamento B</td>
+                                <td>$8,000</td>
+                                <td>Pendiente</td>
+                                <td>
+                                    <button class="btn btn-warning">Revisar</button>
+                                    <button class="btn btn-success">Aprobar</button>
+                                    <button class="btn btn-danger">Rechazar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presupuestos pendientes de aprobación -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Historial de aprobaciones y rechazos</h4>
+        </div>
+    </div>
+
+    <!-- Historial de Aprobaciones y Rechazos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Lista del historial de aprobaciones y rechazos</h5>
+                    <p class="card-text">Revisa el historial de todas las decisiones sobre presupuestos.</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Presupuesto</th>
+                                <th>Departamento</th>
+                                <th>Fecha de Decisión</th>
+                                <th>Acción</th>
+                                <th>Motivos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos de ejemplo -->
+                            <tr>
+                                <td>Presupuesto C</td>
+                                <td>Departamento C</td>
+                                <td>01/12/2024</td>
+                                <td>Aprobado</td>
+                                <td>Monto completo aprobado</td>
+                            </tr>
+                            <tr>
+                                <td>Presupuesto D</td>
+                                <td>Departamento D</td>
+                                <td>02/12/2024</td>
+                                <td>Rechazado</td>
+                                <td>Presupuesto no justificado</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presupuestos pendientes de aprobación -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Comparativo de presupuestos</h4>
+        </div>
+    </div>
+
+    <!-- Análisis de comparativos anuales -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Comparativo anual de presupuestos</h5>
+                    <p class="card-text">Compara el presupuesto actual con los de años anteriores para detectar áreas de mejora.</p>
+                    <div id="comparativoAnualChart"></div>
+                    <script>
+                        var options = {
+                            series: [{
+                                name: "Presupuesto 2024",
+                                data: [5000, 7000, 9000, 12000, 15000, 18000] // Datos para 2024
+                            }, {
+                                name: "Presupuesto 2023",
+                                data: [4500, 6500, 8500, 11000, 14000, 17000] // Datos para 2023
+                            }],
+                            chart: {
+                                type: 'line',
+                                height: 350
+                            },
+                            stroke: {
+                                width: 2
+                            },
+                            title: {
+                                text: 'Comparativo Anual de Presupuestos'
+                            },
+                            xaxis: {
+                                categories: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'] // Meses
+                            },
+                            yaxis: {
+                                title: {
+                                    text: 'Monto ($)'
+                                }
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val) {
+                                        return "$" + val.toFixed(2); // Formato de los montos
+                                    }
+                                }
+                            }
+                        };
+
+                        var chart = new ApexCharts(document.querySelector("#comparativoAnualChart"), options);
+                        chart.render();
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
