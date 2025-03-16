@@ -18,7 +18,7 @@
 <script src="~/js/inactivityTimer.js"></script>
 
 
-<div class="container-xxl flex-grow-1 container-p-y">
+< class="container-xxl flex-grow-1 container-p-y">
     <!-- Título de la página -->
     <div class="row">
         <div class="col-12">
@@ -26,6 +26,7 @@
         </div>
     </div>
 
+    
     <!-- Resumen de Gastos -->
     <div class="row">
         <!-- Desglose por Categoría -->
@@ -49,7 +50,24 @@
                 </div>
             </div>
         </div>
+
+    <!-- Configurar Alertas -->
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Configuración de alertas</h5>
+                <p class="card-text">Configurar umbrales de presupuestos</p>
+                <a href="/SeguimientoGastos/ConfigurarAlertas" class="btn btn-primary">Configurar Alertas</a>
+            </div>
+        </div>
     </div>
+
+
+    </div>
+
+
+  
+    
 
     <!-- Detalles Mensuales -->
     <div class="row">
@@ -135,7 +153,7 @@
             </div>
         </div>
     </div>
-</div>
+
 
 <script>
     document.getElementById('exportPdfBtn').addEventListener('click', function () {

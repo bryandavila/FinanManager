@@ -78,10 +78,11 @@ public class AuthController : Controller
         if (reader.HasRows)
         {
           reader.Read();
-          int resultCode = reader.GetInt32(0); // resultCode nunca debería ser nulo
-          string resultMessage = reader.GetString(1); // resultMessage nunca debería ser nulo
-          string userEmail = reader.IsDBNull(2) ? null : reader.GetString(2); // userEmail puede ser nulo
-          int role_ID = reader.IsDBNull(3) ? 0 : reader.GetInt32(3); // role_ID puede ser nulo
+          int resultCode = reader.GetInt32(0); // Columna 0: ResultCode
+          string resultMessage = reader.GetString(1); // Columna 1: ResultMessage
+          string userEmail = reader.IsDBNull(2) ? null : reader.GetString(2); // Columna 2: UserEmail
+          int role_ID = reader.IsDBNull(3) ? 0 : reader.GetInt32(3); // Columna 3: RoleID
+          int userId = reader.IsDBNull(4) ? 0 : reader.GetInt32(4); // Columna 4: UserID
 
           // Validar si el role_ID es 22 (Acceso denegado)
           if (role_ID == 22)
@@ -94,13 +95,12 @@ public class AuthController : Controller
           {
             // Autenticación exitosa
             var claims = new List<Claim>
-
-        {
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Name, email),
-            new Claim("RoleID", role_ID.ToString()) // Agregar el role_ID como una claim
-        };
-
+                    {
+                        new Claim(ClaimTypes.Email, email), // Correo electrónico
+                        new Claim(ClaimTypes.Name, email), // Nombre (usamos el correo como nombre)
+                        new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // ID del usuario
+                        new Claim("RoleID", role_ID.ToString()) // Role ID
+                    };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties

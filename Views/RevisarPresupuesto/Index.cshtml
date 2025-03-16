@@ -1,0 +1,65 @@
+@model IEnumerable<FinanManager.Models.PresupuestoViewModel>
+
+@{
+	ViewData["Title"] = "Presupuestos Pendientes";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Lista de Presupuestos Pendientes</h4>
+		</div>
+	</div>
+
+	<!-- Formulario de filtrado por nombre de rol -->
+	<div class="row mb-4">
+		<div class="col-md-4">
+			<form method="get" action="@Url.Action("Index")">
+				<div class="input-group">
+					<select name="filtroRol" class="form-select">
+						<option value="">Todos los roles</option>
+						@foreach (var rol in ViewBag.Roles)
+						{
+								<option value="@rol" selected="@(ViewBag.FiltroRol == rol ? "selected" : null)">@rol</option>
+						}
+					</select>
+					<button type="submit" class="btn btn-primary">Filtrar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="row">
+		@if (Model != null && Model.Any()) // Verificar que el modelo no sea nulo y tenga datos
+		{
+			@foreach (var presupuesto in Model)
+			{
+						<div class="col-md-4 mb-4">
+							<div class="card shadow-sm p-3">
+								<div class="card-body">
+									<h5 class="card-title">@presupuesto.Tipo</h5>
+									<p class="card-text">@presupuesto.Descripcion</p>
+									<p><strong>Fecha:</strong> @presupuesto.Fecha.ToString("dd/MM/yyyy")</p>
+									<p><strong>Monto:</strong> @presupuesto.Monto.ToString("C")</p>
+									<p><strong>Rol:</strong> @presupuesto.RolNombre</p>
+									<p>
+										<strong>Estado:</strong>
+										<span class="text-warning">Pendiente</span>
+									</p>
+									<div class="d-flex flex-column align-items-center">
+										<a href="@Url.Action("Detalles", "RevisarPresupuesto", new { id = presupuesto.Id, tipo = presupuesto.Tipo })" 
+										   class="btn btn-info w-100 mb-2">Detalles</a>
+									</div>
+								</div>
+							</div>
+						</div>
+			}
+		}
+		else
+		{
+				<div class="col-12 text-center">
+					<p>No hay presupuestos pendientes.</p>
+				</div>
+		}
+	</div>
+</div>

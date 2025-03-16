@@ -1,19 +1,23 @@
+@model List<dynamic>
+
 @{
     ViewData["Title"] = "Desglose de Gastos por Categoría";
 }
+
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
 }
+
 @section VendorScripts {
     <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
 }
+
 @section PageScripts {
     <script src="~/js/DesgloseGastos.js"></script>
 }
 
 <!-- Script de inactividad -->
 <script src="~/js/inactivityTimer.js"></script>
-
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <!-- Título de la página -->
@@ -35,9 +39,11 @@
                                 <label for="categoria" class="form-label">Categoría</label>
                                 <select id="categoria" name="categoria" class="form-select">
                                     <option value="">Todas</option>
-                                    <option value="Oficina">Oficina</option>
-                                    <option value="Infraestructura">Infraestructura</option>
-                                    <!-- Agrega más categorías aquí -->
+                                    <option value="441">Gastos del Personal</option>
+                                    <option value="442">Gastos Servicios Externos</option>
+                                    <option value="443">Gastos Movilidad y Comunicación</option>
+                                    <option value="444">Gastos Infraestructura</option>
+                                    <option value="445">Gastos Generales</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -74,22 +80,19 @@
                                 </tr>
                             </thead>
                             <tbody id="gastosTableBody">
-                                <!-- Datos de ejemplo -->
-                                <tr>
-                                    <td>Compra de Material</td>
-                                    <td>Oficina</td>
-                                    <td>$300</td>
-                                    <td>Material de oficina necesario</td>
-                                    <td>2024-12-01</td>
-                                </tr>
-                                <tr>
-                                    <td>Mantenimiento</td>
-                                    <td>Infraestructura</td>
-                                    <td>$500</td>
-                                    <td>Reparación de equipos</td>
-                                    <td>2024-12-03</td>
-                                </tr>
-                                <!-- Agrega más filas aquí -->
+                                @foreach (var categoria in Model)
+                                {
+                                    foreach (var gasto in categoria.Gastos)
+                                    {
+                                        <tr>
+                                            <td>@gasto.Justificacion</td>
+                                            <td>@gasto.CuentaMadreId</td>
+                                            <td>@gasto.Total</td>
+                                            <td>@gasto.Justificacion</td>
+                                            <td>@gasto.Fecha.ToShortDateString()</td>
+                                        </tr>
+                                    }
+                                }
                             </tbody>
                         </table>
                     </div>

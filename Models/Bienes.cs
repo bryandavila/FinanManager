@@ -2,6 +2,7 @@ using FinanManager.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+namespace FinanManager.Models;
 public partial class Bienes
 {
   public int BienId { get; set; }

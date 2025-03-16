@@ -1,207 +1,420 @@
 @{
-    ViewData["Title"] = "FinanManager";
+	ViewData["Title"] = "FinanManager";
 }
 
 @section VendorStyles {
-    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+	<!-- Bootstrap Icons -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
 }
 
 @section VendorScripts {
-    <!-- Script de ApexCharts desde CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <!-- Script de jsPDF desde CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<!-- Script de ApexCharts desde CDN -->
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<!-- Script de jsPDF desde CDN -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 }
-
-<!-- Script de inactividad -->
-<script src="~/js/inactivityTimer.js"></script>
-
 
 @section PageScripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Gráfico de Gestión de Presupuesto
-            var options1 = {
-                chart: {
-                    type: 'pie',
-                    height: 350
-                },
-                series: [40, 25, 35], // Datos del gráfico
-                labels: ['Marketing', 'IT', 'HR'], // Etiquetas del gráfico
-                title: {
-                    text: 'Distribución del Presupuesto'
-                },
+	<script>
+            document.addEventListener('DOMContentLoaded', function () {
+        const { jsPDF } = window.jspdf;
+
+        // Datos desde el ViewBag
+        const roles = @Html.Raw(Json.Serialize(ViewBag.Roles));
+        const distribucionPresupuesto = @Html.Raw(Json.Serialize(ViewBag.DistribucionPresupuesto));
+
+        // Paleta de colores personalizada
+        const coloresPersonalizados = [
+            "#FF4560", "#00E396", "#775DD0", "#FEB019", "#008FFB",
+            "#F46036", "#2E294E", "#1B998B", "#FF6B6B", "#4ECDC4",
+            "#C44D58", "#556270", "#4A90E2", "#50E3C2", "#F8E71C",
+            "#BD10E0", "#7ED321", "#9013FE", "#D0021B", "#8B572A",
+            "#417505", "#B8E986"
+        ];
+
+        // Gráfico de Gestión de Presupuesto (Pastel)
+        var options1 = {
+            chart: {
+                type: 'pie',
+                height: 350,
                 toolbar: {
                     show: true,
                     tools: {
-                        download: ['png', 'csv']
+                        customIcons: [{
+                            icon: '<i class="bi bi-arrows-fullscreen"></i>',
+                            title: 'Expandir',
+                            index: 1,
+                            class: 'custom-fullscreen',
+                            click: function () {
+                                let modal = new bootstrap.Modal(document.getElementById('chartModal1'));
+                                modal.show();
+                                setTimeout(() => {
+                                    var expandedChart = new ApexCharts(document.querySelector("#expandedChart1"), options1);
+                                    expandedChart.render();
+                                }, 500);
+                            }
+                        }]
                     }
                 }
-            };
-            var chart1 = new ApexCharts(document.querySelector("#budgetChart"), options1);
-            chart1.render();
-
-            // Función para descargar en PDF utilizando jsPDF
-            function downloadPDF(chart) {
-                const { jsPDF } = window.jspdf;
-                var doc = new jsPDF();
-
-                // Convertir el gráfico a una imagen PNG
-                chart.dataURI().then(function (imgData) {
-                    // Agregar la imagen al PDF
-                    doc.addImage(imgData, 'PNG', 10, 10, 180, 160);
-                    doc.save('chart.pdf'); // Guardar el archivo PDF
-                }).catch(function (error) {
-                    console.error('Error al generar la imagen del gráfico:', error);
-                });
+            },
+            series: Object.values(distribucionPresupuesto),
+            labels: roles,
+            colors: coloresPersonalizados, // Colores personalizados
+            title: {
+                text: 'Distribución del presupuesto por rol'
+            },
+            toolbar: {
+                show: true,
+                tools: {
+                    download: ['png', 'csv']
+                }
             }
+        };
+        var chart1 = new ApexCharts(document.querySelector("#budgetChart"), options1);
+        chart1.render();
 
-            // Gráfico de Gastos
-            var options2 = {
-                chart: {
-                    type: 'line',
-                    height: 350
-                },
-                series: [{
-                    name: 'Gastos',
-                    data: [10, 20, 15, 30, 40, 35, 50] // Datos de ejemplo
-                }],
-                title: {
-                    text: 'Evolución de los Gastos'
-                },
-                xaxis: {
-                    categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'] // Categorías
-                },
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: ['png', 'csv']
-                    }
-                }
-            };
-            var chart2 = new ApexCharts(document.querySelector("#expensesChart"), options2);
-            chart2.render();
+        // Evento para el botón de descarga de PDF
+        document.getElementById('downloadPdfButton').addEventListener('click', function () {
+            // Crear un nuevo documento PDF
+            const doc = new jsPDF();
 
-            // Gráfico de Tendencias de Gastos
-            var options3 = {
-                chart: {
-                    type: 'area',
-                    height: 350
-                },
-                series: [{
-                    name: 'Tendencias',
-                    data: [50, 40, 35, 60, 80, 70, 90] // Datos de ejemplo
-                }],
-                title: {
-                    text: 'Tendencias de Gastos'
-                },
-                xaxis: {
-                    categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'] // Categorías
-                },
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: ['png', 'csv']
-                    }
-                }
-            };
-            var chart3 = new ApexCharts(document.querySelector("#spendingTrendsChart"), options3);
-            chart3.render();
+            // Capturar el gráfico como una imagen
+            chart1.dataURI().then(({ imgURI }) => {
+                // Agregar la imagen al PDF
+                doc.addImage(imgURI, 'PNG', 10, 10, 180, 100);
 
-            // Agregar evento para la descarga en PDF
-            document.querySelector("#downloadPdfButton").addEventListener("click", function () {
-                // Descargar el gráfico como PDF
-                downloadPDF(chart1); // Aquí puedes elegir el gráfico que se desea descargar
+                // Guardar el PDF
+                doc.save('grafico-presupuesto.pdf');
             });
         });
-    </script>
+
+					// Gráfico de Gastos
+		var options2 = {
+			chart: {
+				type: 'line',
+				height: 350,
+				toolbar: {
+					show: true,
+					tools: {
+						customIcons: [{
+							icon: '<i class="bi bi-arrows-fullscreen"></i>',
+							title: 'Expandir',
+							index: 5,
+							class: 'custom-fullscreen',
+							click: function () {
+								let modal = new bootstrap.Modal(document.getElementById('chartModal2'));
+								modal.show();
+								setTimeout(() => {
+									var expandedChart = new ApexCharts(document.querySelector("#expandedChart2"), options2);
+									expandedChart.render();
+								}, 500);
+							}
+						}]
+					}
+				}
+			},
+			series: [{
+				name: 'Gastos',
+				data: [
+		@ViewBag.TendenciaGastos.Enero,
+		@ViewBag.TendenciaGastos.Febrero,
+		@ViewBag.TendenciaGastos.Marzo,
+		@ViewBag.TendenciaGastos.Abril,
+		@ViewBag.TendenciaGastos.Mayo,
+		@ViewBag.TendenciaGastos.Junio,
+		@ViewBag.TendenciaGastos.Julio,
+		@ViewBag.TendenciaGastos.Agosto,
+		@ViewBag.TendenciaGastos.Septiembre,
+		@ViewBag.TendenciaGastos.Octubre,
+		@ViewBag.TendenciaGastos.Noviembre,
+		@ViewBag.TendenciaGastos.Diciembre
+				]
+			}],
+			title: {
+				text: 'Evolución de los Gastos'
+			},
+			xaxis: {
+				categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+			},
+			toolbar: {
+				show: true,
+				tools: {
+					download: ['png', 'csv']
+				}
+			}
+		};
+		var chart2 = new ApexCharts(document.querySelector("#expensesChart"), options2);
+		chart2.render();
+
+				// Gráfico de Tendencias de Gastos
+		var options3 = {
+			chart: {
+				type: 'area',
+				height: 350,
+				toolbar: {
+					show: true,
+					tools: {
+						customIcons: [{
+							icon: '<i class="bi bi-arrows-fullscreen"></i>',
+							title: 'Expandir',
+							index: 5,
+							class: 'custom-fullscreen',
+							click: function () {
+								let modal = new bootstrap.Modal(document.getElementById('chartModal3'));
+								modal.show();
+								setTimeout(() => {
+									var expandedChart = new ApexCharts(document.querySelector("#expandedChart3"), options3);
+									expandedChart.render();
+								}, 500);
+							}
+						}]
+					}
+				}
+			},
+			series: [{
+				name: 'Tendencias de Gastos',
+				data: [
+		@ViewBag.TendenciaGastos.Enero,
+		@ViewBag.TendenciaGastos.Febrero,
+		@ViewBag.TendenciaGastos.Marzo,
+		@ViewBag.TendenciaGastos.Abril,
+		@ViewBag.TendenciaGastos.Mayo,
+		@ViewBag.TendenciaGastos.Junio,
+		@ViewBag.TendenciaGastos.Julio,
+		@ViewBag.TendenciaGastos.Agosto,
+		@ViewBag.TendenciaGastos.Septiembre,
+		@ViewBag.TendenciaGastos.Octubre,
+		@ViewBag.TendenciaGastos.Noviembre,
+		@ViewBag.TendenciaGastos.Diciembre
+				]
+			}],
+			title: {
+				text: 'Tendencias de Gastos por Mes'
+			},
+			xaxis: {
+				categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+			},
+			toolbar: {
+				show: true,
+				tools: {
+					download: ['png', 'csv']
+				}
+			}
+		};
+		var chart3 = new ApexCharts(document.querySelector("#spendingTrendsChart"), options3);
+		chart3.render();
+
+
+			// Gráfico de Barras para la Gestión de Presupuesto
+		var options4 = {
+			chart: {
+				type: 'bar',
+				height: 350,
+				toolbar: {
+					show: true,
+					tools: {
+						customIcons: [{
+							icon: '<i class="bi bi-arrows-fullscreen"></i>', // Ícono de Bootstrap Icons
+							title: 'Expandir',
+							index: 1,
+							class: 'custom-fullscreen',
+							click: function () {
+								// Abrir el modal
+								let modal = new bootstrap.Modal(document.getElementById('chartModal4'));
+								modal.show();
+
+								// Renderizar el gráfico en el modal después de que esté visible
+								setTimeout(() => {
+									var expandedChart = new ApexCharts(document.querySelector("#expandedChart4"), options4);
+									expandedChart.render();
+								}, 500);
+							}
+						}]
+					}
+				}
+			},
+			series: [{
+				name: 'Presupuesto',
+				data: Object.values(distribucionPresupuesto)
+			}],
+			xaxis: {
+				categories: roles
+			},
+			colors: coloresPersonalizados, // Colores personalizados
+			title: {
+				text: 'Distribución del presupuesto por rol'
+			},
+			toolbar: {
+				show: true,
+				tools: {
+					download: ['png', 'csv']
+				}
+			}
+		};
+		var chart4 = new ApexCharts(document.querySelector("#budgetBarChart"), options4);
+		chart4.render();
+		});
+	</script>
 }
 
-@* ************** Contenido ************** *@
 <div class="row">
-    <!-- Gráfico de Gestión de Presupuesto -->
-    <div class="col-12 col-xxl-6 mb-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">Gestión de Presupuesto</h5>
-                <!-- Botón para Descargar PDF -->
-                <button id="downloadPdfButton" class="btn btn-primary btn-sm">Descargar en PDF</button>
-            </div>
-            <div class="card-body">
-                <div id="budgetChart"></div>
-            </div>
-        </div>
-    </div>
+	<!-- Gráfico de Gestión de Presupuesto (Pastel) -->
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"> <a href="/GestionPresupuesto/Index">Gestión de Presupuesto</a></h5>
+				<button id="downloadPdfButton" class="btn btn-primary btn-sm">Descargar en PDF</button>
+			</div>
+			<div class="card-body">
+				<div id="budgetChart"></div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Gráfico de Gastos -->
-    <div class="col-12 col-xxl-6 mb-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">Visualización de Gastos</h5>
-            </div>
-            <div class="card-body">
-                <div id="expensesChart"></div>
-            </div>
-        </div>
-    </div>
+	<!-- Gráfico de Gestión de Presupuesto (Barras) -->
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/GestionPresupuesto/Index">Distribución del presupuesto por rol</a></h5>
+			</div>
+			<div class="card-body">
+				<div id="budgetBarChart"></div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="row">
-    <!-- Panel de Alertas -->
-    <div class="col-12 col-lg-4 mb-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">Alertas de Desviaciones</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li class="alert alert-danger mb-3">
-                        <strong>Exceso de Presupuesto</strong><br>
-                        Los gastos del departamento de Marketing han excedido el presupuesto en $500. Revisa la asignación de recursos.
-                    </li>
-                    <li class="alert alert-warning mb-3">
-                        <strong>Gasto No Autorizado</strong><br>
-                        Se ha detectado un gasto no autorizado en la categoría de viajes. Requiere revisión.
-                    </li>
-                    <li class="alert alert-info">
-                        <strong>Presupuesto Ajustado</strong><br>
-                        El presupuesto para Recursos Humanos ha sido ajustado según las nuevas políticas fiscales.
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+	<!-- Gráfico de Gastos -->
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/seguimientoGastos/Index">Visualización de gastos</a></h5>
+			</div>
+			<div class="card-body">
+				<div id="expensesChart"></div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Gráfico Interactivo de Gastos Acumulados -->
-    <div class="col-12 col-xxl-4 mb-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">Tendencias de Gastos</h5>
-            </div>
-            <div class="card-body">
-                <div id="spendingTrendsChart"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Resumen Financiero -->
-    <div class="col-12 col-lg-4 mb-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="m-0">Resumen Financiero</h5>
-            </div>
-            <div class="card-body">
-                <h3>$45,000</h3>
-                <p class="text-muted">Ingresos Totales</p>
-                <div class="progress mb-3" style="height: 8px;">
-                    <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h3>$30,000</h3>
-                <p class="text-muted">Gastos Totales</p>
-                <div class="progress mb-3" style="height: 8px;">
-                    <div class="progress-bar" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- Gráfico de Tendencias de Gastos -->
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/SeguimientoGastos/Index">Tendencias de Gastos</a></h5>
+			</div>
+			<div class="card-body">
+				<div id="spendingTrendsChart"></div>
+			</div>
+		</div>
+	</div>
 </div>
+
+<div class="row">
+	<!-- Resumen Financiero -->
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/Financiero/Index">Resumen Financiero</a></h5>
+			</div>
+			<div class="card-body">
+				<h3>$@(ViewBag.TotalPresupuesto?.ToString("N2") ?? "0.00")</h3>
+				<p class="text-muted">Presupuesto Total</p>
+				<div class="progress mb-3" style="height: 8px;">
+					<div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+				</div>
+				<h3>$@(ViewBag.TotalGastos?.ToString("N2") ?? "0.00")</h3>
+				<p class="text-muted">Gastos Totales</p>
+				<div class="progress mb-3" style="height: 8px;">
+					<div class="progress-bar bg-danger" role="progressbar" style="width: @((ViewBag.TotalGastos / ViewBag.TotalPresupuesto) * 100)%" aria-valuenow="@((ViewBag.TotalGastos / ViewBag.TotalPresupuesto) * 100)" aria-valuemin="0" aria-valuemax="100"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Panel de Alertas -->
+	<!--<div class="col-12 col-lg-4 mb-6">
+		<div class="card">
+			<div class="card-header">
+				<h5 class="m-0">Alertas de desviaciones</h5>
+			</div>
+			<div class="card-body">
+				<ul class="list-unstyled">
+					<li class="alert alert-danger mb-3">
+						<strong>Exceso de Presupuesto</strong><br>
+						Los gastos del departamento de Marketing han excedido el presupuesto en $500. Revisa la asignación de recursos.
+					</li>
+					<li class="alert alert-warning mb-3">
+						<strong>Gasto No Autorizado</strong><br>
+						Se ha detectado un gasto no autorizado en la categoría de viajes. Requiere revisión.
+					</li>
+					<li class="alert alert-info">
+						<strong>Presupuesto Ajustado</strong><br>
+						El presupuesto para Recursos Humanos ha sido ajustado según las nuevas políticas fiscales.
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	</div>-->
+	<!-- Modales para cada gráfico -->
+	<!-- Modal para Gráfico de Gestión de Presupuesto -->
+	<div class="modal fade" id="chartModal1" tabindex="-1" aria-labelledby="chartModal1Label" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="chartModal1Label">Gráfico Expandido - Gestión de Presupuesto</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="expandedChart1"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Gráfico de Gastos -->
+	<div class="modal fade" id="chartModal2" tabindex="-1" aria-labelledby="chartModal2Label" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="chartModal2Label">Gráfico Expandido - Gastos</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="expandedChart2"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Gráfico de Tendencias de Gastos -->
+	<div class="modal fade" id="chartModal3" tabindex="-1" aria-labelledby="chartModal3Label" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="chartModal3Label">Gráfico Expandido - Tendencias de Gastos</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="expandedChart3"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Gráfico de Distribución del Presupuesto por Rol -->
+	<div class="modal fade" id="chartModal4" tabindex="-1" aria-labelledby="chartModal4Label" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="chartModal4Label">Gráfico Expandido - Distribución del Presupuesto por Rol</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="expandedChart4"></div>
+				</div>
+			</div>
+		</div>
+	</div>

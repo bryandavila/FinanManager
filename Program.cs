@@ -13,9 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<FinanManagerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("FinanManagerDBConnection")));
 
-// Agregar servicio para la configuración del correo
+// Registrar servicios adicionales
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddTransient<IEmailSender, EmailSender>(); // Registrar IEmailSender
 
 // Registrar controlador AdministradorController con la inyección de la cadena de conexión
 builder.Services.AddTransient<AdministradorController>();
@@ -46,17 +46,12 @@ var app = builder.Build();
 // Configurar el pipeline de solicitudes HTTP.
 if (!app.Environment.IsDevelopment())
 {
-  // Si no está en desarrollo, usa HSTS (HTTP Strict Transport Security) y HTTPS
   app.UseExceptionHandler("/Home/Error");
   app.UseHsts();
-  app.UseHttpsRedirection();
 }
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// Habilitar autenticación y autorización
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -64,5 +59,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=LoginBasic}/{id?}");
+
+// Configuración de rutas adicionales
+app.MapControllerRoute(
+    name: "VerPresupuesto",
+    pattern: "VerPresupuesto/{action=Index}/{id?}",
+    defaults: new { controller = "VerPresupuesto" });
 
 app.Run();
