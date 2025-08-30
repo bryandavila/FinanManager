@@ -1,0 +1,82 @@
+@model List<FinanManager.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <!-- Encabezado de la tarjeta -->
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">
+                <i class="bx bx-bell bx-md me-2"></i> Notificaciones
+            </h3>
+        </div>
+
+        <!-- Cuerpo de la tarjeta -->
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                @foreach (var notification in Model)
+                {
+                    <li class="list-group-item" id="notification-@notification.NotificationsId">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">
+                                    <i class="bx bx-message-rounded-detail bx-sm me-2"></i>
+                                    @notification.NotificationType
+                                </h5>
+                                <p class="mb-1">@notification.NotificationMessage</p>
+                                <small class="text-muted">
+                                    <i class="bx bx-user bx-xs me-1"></i>
+                                    Rol: @notification.Role?.role_name <!-- Mostrar el nombre del rol -->
+                                </small>
+                            </div>
+                            <div>
+                                <span class="badge bg-info">Nuevo</span>
+                                <button class="btn btn-danger btn-sm" onclick="deleteNotification(@notification.NotificationsId)">
+                                    <i class="bx bx-trash"></i> Marcar como leida
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Pie de la tarjeta -->
+        <div class="card-footer text-muted">
+            <small>Mostrando @Model.Count notificaciones</small>
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteNotification(notificationId) {
+        if (confirm('¿Estás seguro de que deseas eliminar esta notificación?')) {
+            fetch(`/Notifications/DeleteNotification?id=${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Eliminar la notificación de la vista
+                    const notificationElement = document.getElementById(`notification-${notificationId}`);
+                    if (notificationElement) {
+                        notificationElement.remove();
+                    }
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al eliminar la notificación.');
+            });
+        }
+    }
+</script>

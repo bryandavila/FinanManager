@@ -1,0 +1,309 @@
+@using FinanManager.Models
+@model dynamic
+@{
+    ViewData["Title"] = "Detalles del Presupuesto";
+}
+
+<h2>Detalles del Presupuesto</h2>
+
+<div>
+    <h4>@Model.GetType().Name</h4>
+    <hr />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Campo</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model is Bienes bien)
+            {
+                <tr>
+                    <td>ID</td>
+                    <td>@bien.BienId</td>
+                </tr>
+                <tr>
+                    <td>Descripción</td>
+                    <td>@bien.Descripcion</td>
+                </tr>
+                <tr>
+                    <td>Cantidad</td>
+                    <td>@bien.Cantidad</td>
+                </tr>
+                <tr>
+                    <td>Monto Unitario</td>
+                    <td>@bien.MontoUnitario</td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>@bien.Total</td>
+                </tr>
+                <tr>
+                    <td>Periodo de ejecución</td>
+                    <td>
+                        @{
+                            var meses = new List<string>();
+
+                            if (bien.Enero == 1) meses.Add("Enero");
+
+                            if (bien.Febrero == 1) meses.Add("Febrero");
+
+                            if (bien.Marzo == 1) meses.Add("Marzo");
+
+                            if (bien.Abril == 1) meses.Add("Abril");
+
+                            if (bien.Mayo == 1) meses.Add("Mayo");
+
+                            if (bien.Junio == 1) meses.Add("Junio");
+
+                            if (bien.Julio == 1) meses.Add("Julio");
+
+                            if (bien.Agosto == 1) meses.Add("Agosto");
+
+                            if (bien.Septiembre == 1) meses.Add("Septiembre");
+
+                            if (bien.Octubre == 1) meses.Add("Octubre");
+
+                            if (bien.Noviembre == 1) meses.Add("Noviembre");
+
+                            if (bien.Diciembre == 1) meses.Add("Diciembre");
+                        }
+                        @string.Join(", ", meses)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Estado</td>
+                    <td>
+                        @switch (bien.StatusId)
+
+                        {
+                            case 1:
+                                <span class="text-danger">Rechazado</span>
+                                break;
+                            case 2:
+                                <span class="text-warning">Pendiente</span>
+                                break;
+                            case 3:
+                                <span class="text-success">Aprobado</span>
+                                break;
+
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fecha</td>
+                    <td>@bien.Fecha.ToShortDateString()</td>
+                </tr>
+                @if (bien.MotivoRechazo != null)
+
+                {
+                    <tr>
+                        <td>Motivo de Rechazo</td>
+                        <td>@bien.MotivoRechazo</td>
+                    </tr>
+                }
+            }
+            else if (Model is Gasto gasto)
+            {
+                <tr>
+                    <td>ID</td>
+                    <td>@gasto.GastoId</td>
+                </tr>
+                <tr>
+                    <td>Cuenta Madre</td>
+                    <td>@gasto.CuentaMadreId</td>
+                </tr>
+                <tr>
+                    <td>Cuenta Hija</td>
+                    <td>@gasto.CuentaHijaId</td>
+                </tr>
+                <tr>
+                    <td>Justificación</td>
+                    <td>@gasto.Justificacion</td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>@gasto.Total</td>
+                </tr>
+                <tr>
+                    <td>Periodo de ejecución</td>
+                    <td>
+                        @{
+                            var meses = new List<string>();
+
+                            if (gasto.Enero == 1) meses.Add("Enero");
+
+                            if (gasto.Febrero == 1) meses.Add("Febrero");
+
+                            if (gasto.Marzo == 1) meses.Add("Marzo");
+
+                            if (gasto.Abril == 1) meses.Add("Abril");
+
+                            if (gasto.Mayo == 1) meses.Add("Mayo");
+
+                            if (gasto.Junio == 1) meses.Add("Junio");
+
+                            if (gasto.Julio == 1) meses.Add("Julio");
+
+                            if (gasto.Agosto == 1) meses.Add("Agosto");
+
+                            if (gasto.Septiembre == 1) meses.Add("Septiembre");
+
+                            if (gasto.Octubre == 1) meses.Add("Octubre");
+
+                            if (gasto.Noviembre == 1) meses.Add("Noviembre");
+
+                            if (gasto.Diciembre == 1) meses.Add("Diciembre");
+                        }
+                        @string.Join(", ", meses)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Estado</td>
+                    <td>
+                        @switch (gasto.StatusId)
+
+                        {
+                            case 1:
+                                <span class="text-danger">Rechazado</span>
+                                break;
+                            case 2:
+                                <span class="text-warning">Pendiente</span>
+                                break;
+                            case 3:
+                                <span class="text-success">Aprobado</span>
+                                break;
+
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fecha</td>
+                    <td>@gasto.Fecha.ToShortDateString()</td>
+                </tr>
+                @if (gasto.MotivoRechazo != null)
+
+                {
+                    <tr>
+                        <td>Motivo de Rechazo</td>
+                        <td>@gasto.MotivoRechazo</td>
+                    </tr>
+                }
+            }
+            else if (Model is Proyecto proyecto)
+            {
+                <tr>
+                    <td>ID</td>
+                    <td>@proyecto.ProyectoId</td>
+                </tr>
+                <tr>
+                    <td>Valor Estimado</td>
+                    <td>@proyecto.ValorEstimado</td>
+                </tr>
+                <tr>
+                    <td>Descripción</td>
+                    <td>@proyecto.Descripcion</td>
+                </tr>
+                <tr>
+                    <td>Viabilidad Comercial</td>
+                    <td>@proyecto.ViabilidadComercial</td>
+                </tr>
+                <tr>
+                    <td>Viabilidad Técnica</td>
+                    <td>@proyecto.ViabilidadTecnica</td>
+                </tr>
+                <tr>
+                    <td>Viabilidad Legal</td>
+                    <td>@proyecto.ViabilidadLegal</td>
+                </tr>
+                <tr>
+                    <td>Viabilidad de Gestión</td>
+                    <td>@proyecto.ViabilidadGestion</td>
+                </tr>
+                <tr>
+                    <td>Viabilidad de Impacto Ambiental</td>
+                    <td>@proyecto.ViabilidadImpactoAmbiental</td>
+                </tr>
+                <tr>
+                    <td>Viabilidad Financiera</td>
+                    <td>@proyecto.ViabilidadFinanciera</td>
+                </tr>
+                <tr>
+                    <td>Estado</td>
+                    <td>
+                        @switch (proyecto.StatusId)
+
+                        {
+                            case 1:
+                                <span class="text-danger">Rechazado</span>
+                                break;
+                            case 2:
+                                <span class="text-warning">Pendiente</span>
+                                break;
+                            case 3:
+                                <span class="text-success">Aprobado</span>
+                                break;
+
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fecha</td>
+                    <td>@proyecto.Fecha.ToShortDateString()</td>
+                </tr>
+                @if (proyecto.MotivoRechazo != null)
+
+                {
+                    <tr>
+                        <td>Motivo de Rechazo</td>
+                        <td>@proyecto.MotivoRechazo</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Botones de Aprobar y Rechazar -->
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+
+    @* @if (Model.StatusId == 2) // Solo mostrar botones si está pendiente
+
+    {
+        <form asp-controller="VerPresupuesto" asp-action="Index" method="post" style="display:inline;">
+            <input type="hidden" name="id" value="@Model.BienId" /> <!-- Usar BienId, GastoId o ProyectoId según el tipo -->
+            <input type="hidden" name="tipo" value="@Model.GetType().Name" />
+            <button type="submit" class="btn btn-success">Aprobar</button>
+        </form>
+
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rechazarModal">Rechazar</button>
+    } *@
+</div>
+
+@* <!-- Modal para Rechazar -->
+<div class="modal fade" id="rechazarModal" tabindex="-1" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rechazarModalLabel">Motivo de Rechazo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-controller="VerPresupuesto" asp-action="Index" method="post">
+                    <input type="hidden" name="id" value="@Model.BienId" /> <!-- Usar BienId, GastoId o ProyectoId según el tipo -->
+                    <input type="hidden" name="tipo" value="@Model.GetType().Name" />
+                    <div class="form-group">
+                        <label for="motivoRechazo">Motivo de Rechazo</label>
+                        <textarea class="form-control" id="motivoRechazo" name="motivoRechazo" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Rechazar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> *@

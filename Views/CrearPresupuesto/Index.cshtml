@@ -1,0 +1,46 @@
+@{
+	ViewData["Title"] = "Gestión de Presupuestos - Formulario";
+}
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+	<link rel="stylesheet" href="~/css/CrearPresupuesto.css" />
+}
+@section VendorScripts {
+	<script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<!-- Título de la página -->
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4 text-primary text-center">Gestión de Presupuestos</h4>
+		</div>
+	</div>
+
+	<!-- Selección de tipo de presupuesto -->
+	<div class="row justify-content-center mb-4">
+		<div class="col-md-6">
+			<label for="tipoPresupuesto" class="form-label fw-bold">Seleccione el tipo de presupuesto:</label>
+			<select class="form-select shadow-sm" id="tipoPresupuesto">
+				<option value="" selected disabled>Seleccione una opción</option>
+				<option value="Bienes">Bienes</option>
+				<option value="Gastos">Gastos</option>
+				<option value="Proyectos">Proyectos</option>
+			</select>
+		</div>
+	</div>
+
+	<!-- Formulario dinámico -->
+	<div id="formularioPresupuesto" class="row justify-content-center">
+		<!-- Contenido dinámico se cargará aquí -->
+	</div>
+</div>
+
+@section PageScripts {
+	<script src="~/js/CrearPresupuesto.js"></script>
+}

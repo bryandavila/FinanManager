@@ -1,0 +1,28 @@
+@{
+    Layout = "_BlankLayout"; // Usa el mismo layout que tu login para mantener la consistencia
+    ViewData["Title"] = "Mensaje Confirmacion";
+}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+            <div class="card px-sm-6 px-0">
+                <div class="card-body">
+                    <div class="logo-container" style="text-align: center; padding: 20px 0;">
+                        <img src="/img/Logo/logo.jpg" alt="Logo" style="width: 125px;">
+                    </div>
+                    <div class="text-center">
+                    <h4 class="mb-1">¡Operación completada! ✅</h4>
+                    <p class="mb-6">Su operación se ha realizado con éxito.</p>
+                    </div>
+                    <!-- Botón para redirigir al login -->
+                    <div class="text-center">
+                        <a href="@Url.Action("Index", "Administrador")" class="btn btn-primary">
+                            OK
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

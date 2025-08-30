@@ -1,0 +1,200 @@
+@using System.Globalization
+
+@{
+	ViewData["Title"] = "Seguimiento de Gastos";
+}
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Seguimiento de Gastos</h4>
+		</div>
+	</div>
+
+	<!-- Tarjetas -->
+	<div class="row">
+		<div class="col-12 col-md-6 mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Desglose de Gastos por Categoría</h5>
+					<p class="card-text">Consulta un desglose detallado de tus gastos por cada categoría.</p>
+					<a href="@Url.Action("ResumenGastos", "Gastos")" class="btn btn-primary">Ver Desglose</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-md-6 mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Gráficos de Gastos</h5>
+					<p class="card-text">Visualiza los gastos en gráficos, destacando la categoría con mayores gastos.</p>
+					<a href="@Url.Action("Index", "GraficosGastos")" class="btn btn-info">Ver Gráficos</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-md-6 mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Configuración de alertas</h5>
+					<p class="card-text">Configurar umbrales de presupuestos</p>
+					<a href="/SeguimientoGastos/ConfigurarAlertas" class="btn btn-primary">Configurar Alertas</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-md-6 mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Desglose de Gastos por Mes</h5>
+					<p class="card-text">Consulta un desglose detallado de tus gastos por mes.</p>
+					<a href="@Url.Action("GastoPorMes", "SeguimientoGastos")" class="btn btn-info">Ver Desglose</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Comparación de Gastos entre Meses -->
+	<div class="row">
+		<div class="col-12 mb-4">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Comparación de Gastos entre Meses</h5>
+					<p class="card-text">Compara tus gastos entre dos o más meses.</p>
+
+					<form id="compararMesesForm">
+						<div class="row">
+							<div class="col-md-4 mb-3">
+								<label for="mes1" class="form-label">Mes 1</label>
+								<select id="mes1" name="mes1" class="form-select">
+									@for (int i = 1; i <= 12; i++)
+									{
+										<option value="@i">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+									}
+								</select>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label for="mes2" class="form-label">Mes 2</label>
+								<select id="mes2" name="mes2" class="form-select">
+									@for (int i = 1; i <= 12; i++)
+									{
+										<option value="@i">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+									}
+								</select>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label for="anioComparacion" class="form-label">Año</label>
+								<input type="number" id="anioComparacion" name="anioComparacion" class="form-control"
+									   min="2000" max="@DateTime.Now.Year" value="@DateTime.Now.Year" />
+							</div>
+						</div>
+						<button type="button" id="compararMesesBtn" class="btn btn-info">Comparar</button>
+					</form>
+
+					<div class="table-responsive mt-4">
+						<table class="table table-bordered" id="tablaComparacion">
+							<thead>
+								<tr>
+									<th>Mes</th>
+									<th>Total de Gastos</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Llenado dinámico -->
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Contenedor del gráfico -->
+					<div class="mt-4">
+						<div id="comparisonChart" style="min-height: 300px;"></div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Script de comparación -->
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		let comparisonChart = null;
+
+		document.getElementById('compararMesesBtn').addEventListener('click', function () {
+			const mes1 = document.getElementById('mes1').value;
+			const mes2 = document.getElementById('mes2').value;
+			const anio = document.getElementById('anioComparacion').value;
+
+			if (mes1 === mes2) {
+				alert("Seleccione dos meses diferentes.");
+				return;
+			}
+
+			const url = `/SeguimientoGastos/CompararMeses?meses=${mes1}&meses=${mes2}&anio=${anio}`;
+
+			fetch(url)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error("Error al obtener los datos");
+					}
+					return response.json();
+				})
+				.then(data => {
+					const tbody = document.querySelector('#tablaComparacion tbody');
+					tbody.innerHTML = '';
+
+					const categorias = [];
+					const valores = [];
+
+					for (const mes in data) {
+						categorias.push(mes);
+						valores.push(data[mes]);
+
+						const fila = document.createElement('tr');
+						fila.innerHTML = `
+							<td>${mes}</td>
+							<td>₡ ${data[mes].toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+						`;
+						tbody.appendChild(fila);
+					}
+
+					if (comparisonChart) {
+						comparisonChart.updateOptions({
+							xaxis: { categories: categorias },
+							series: [{ name: 'Gastos', data: valores }]
+						});
+					} else {
+						comparisonChart = new ApexCharts(document.querySelector("#comparisonChart"), {
+							chart: { type: 'bar', height: 300 },
+							series: [{ name: 'Gastos', data: valores }],
+							xaxis: { categories: categorias },
+							colors: ['#00aaff'],
+							title: {
+								text: 'Comparación de Gastos entre Meses',
+								align: 'center'
+							}
+						});
+						comparisonChart.render();
+					}
+				})
+				.catch(error => {
+					console.error("Error:", error);
+					alert("No se pudieron obtener los datos para la comparación.");
+				});
+		});
+	});
+</script>

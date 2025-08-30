@@ -1,0 +1,279 @@
+@model IEnumerable<FinanManager.Models.User>
+
+@{
+    ViewData["Title"] = "Gestión de usuarios y permisos";
+}
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/GestionUsuarios.js"></script>
+}
+
+<style>
+    #usersTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: Arial, sans-serif;
+    }
+
+        #usersTable th, #usersTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: middle; /* Para que todo el texto esté centrado verticalmente */
+        }
+
+        #usersTable th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        #usersTable tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #usersTable tr:hover {
+            background-color: #f1f1f1;
+        }
+</style>
+
+<script src="~/js/inactivityTimer.js"></script>
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gestión de usuarios y permisos</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Crear nuevo usuario</h5>
+                <p class="card-text">Accede al formulario para agregar un nuevo usuario al sistema.</p>
+                <a href="/Administrador/Create" class="btn btn-primary">Crear usuario</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Historial de Cambios y Restablecimientos</h5>
+                <p class="card-text">Lista de roles y contraseñas restablecidas</p>
+                <a href="/Administrador/PasswordHistory" class="btn btn-info">Historial de Restablecimientos</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Filtrar y exportar usuarios</h5>
+                <form id="filterForm">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="roleFilter">Filtrar por rol:</label>
+                            <select id="roleFilter" class="form-control">
+                                <option value="">Todos</option>
+                                @foreach (var role in ViewBag.Roles)
+                                {
+                                    <option value="@role.Text">@role.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="statusFilter">Filtrar por estado:</label>
+                            <select id="statusFilter" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary mt-4" onclick="applyFilters()">Aplicar filtros</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="mt-3">
+                    <button class="btn btn-success" onclick="exportToCSV()">Exportar a CSV</button>
+                    <button class="btn btn-danger" onclick="exportToPDF()">Exportar a PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Usuarios registrados</h5>
+                <p class="card-text">Lista de usuarios registrados en el sistema.</p>
+                <table class="table table-bordered" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre de usuario</th>
+                            <th>Correo electrónico</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Fecha de creación</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr id="row-@user.Users_Id">
+                                <td>@user.Name</td>
+                                <td>@user.UserEmail</td>
+                                <td>@user.Role?.role_name</td>
+                                <td id="status-@user.Users_Id">@(user.UserStatus == 1 ? "Activo" : "Inactivo")</td>
+                                <td>@user.CreatedDate?.ToString("yyyy-MM-dd HH:mm:ss")</td>
+
+                                <td class="text-center">
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton-@user.Users_Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                                            </svg>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@user.Users_Id">
+                                            <li><a class="dropdown-item" href="@Url.Action("Edit", new { id = user.Users_Id })">Editar Usuario</a></li>
+                                            <li>
+                                                @if (user.UserStatus == 1)
+                                                {
+                                                    <a class="dropdown-item" id="toggle-btn-@user.Users_Id" href="javascript:void(0)" onclick="toggleUserStatus(@user.Users_Id, @user.UserStatus)">Desactivar</a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="dropdown-item" id="toggle-btn-@user.Users_Id" href="javascript:void(0)" onclick="toggleUserStatus(@user.Users_Id, @user.UserStatus)">Activar</a>
+                                                }
+                                            </li>
+                                            <li><a class="dropdown-item" href="@Url.Action("ResetPassword", new { id = user.Users_Id })">Restablecer Contraseña</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteUser(@user.Users_Id)">Eliminar</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function applyFilters() {
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        // Filtrar la tabla
+        const rows = document.querySelectorAll('#usersTable tbody tr');
+        rows.forEach(row => {
+            const role = row.cells[2].textContent; // Índice 2 para la columna de Rol
+            const status = row.cells[3].textContent === 'Activo' ? '1' : '0'; // Índice 3 para la columna de Estado
+
+            const roleMatch = roleFilter === '' || role === roleFilter;
+            const statusMatch = statusFilter === '' || status === statusFilter;
+
+            if (roleMatch && statusMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function exportToCSV() {
+        const rows = document.querySelectorAll('#usersTable tbody tr');
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // Encabezados
+        const headers = ["Nombre", "Correo", "Rol", "Estado", "Fecha de creacion"];
+        csvContent += headers.join(",") + "\n";
+
+        // Datos
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[0].textContent, // Nombre
+                    cells[1].textContent, // Correo
+                    cells[2].textContent, // Rol
+                    cells[3].textContent, // Estado
+                    cells[4].textContent  // Fecha de Creación
+                ];
+
+                csvContent += rowData.join(",") + "\n";
+            }
+        });
+
+        // Descargar archivo
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "usuarios.csv");
+        document.body.appendChild(link);
+        link.click();
+    }
+
+
+    function exportToPDF() {
+        console.log('Función exportToPDF ejecutada'); // Mensaje de depuración
+
+        // Seleccionar la tabla que queremos exportar
+        const table = document.getElementById('usersTable');
+        const actionsColumn = table.querySelectorAll('td:nth-child(6), th:nth-child(6)');
+
+        // Ocultar la columna de "Acciones"
+        actionsColumn.forEach(cell => {
+            cell.style.display = 'none';
+        });
+
+        // Crear un nuevo documento PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Configurar autoTable
+        doc.autoTable({
+            html: table,
+            theme: 'grid', // Estilo de la tabla
+            headStyles: { fillColor: [41, 128, 185] }, // Color del encabezado
+            styles: { fontSize: 10 }, // Tamaño de la fuente
+            margin: { top: 20 }, // Margen superior
+            didDrawPage: (data) => {
+                // Agregar un título al PDF
+                doc.setFontSize(16);
+                doc.text('Lista de usuarios registrados', 14, 15);
+            }
+        });
+
+        // Descargar el PDF
+        doc.save('usuarios.pdf');
+
+        // Restaurar la columna de "Acciones"
+        actionsColumn.forEach(cell => {
+            cell.style.display = '';
+        });
+    }
+</script>

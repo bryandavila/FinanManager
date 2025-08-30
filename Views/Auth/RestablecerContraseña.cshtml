@@ -1,0 +1,41 @@
+@model FinanManager.Models.User
+
+@{
+    Layout = "_BlankLayout";
+    ViewData["Title"] = "Restablecer Contraseña";
+}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+            <div class="card px-sm-6 px-0">
+                <div class="card-body">
+                    <div class="logo-container" style="text-align: center; padding: 20px 0;">
+                        <img src="/img/Logo/logo.jpg" alt="Logo" style="width: 125px;">
+                    </div>
+                    <h4 class="mb-1 text-center">Restablecer Contraseña</h4>
+                    <p class="mb-6 text-center">Ingresa una nueva contraseña para tu cuenta</p>
+                    <form asp-action="RestablecerContraseña" method="post">
+                        <input type="hidden" name="token" value="@ViewBag.Token" />
+                        <input type="hidden" name="isAdmin" value="@(ViewBag.IsAdmin ? "true" : "false")" />
+                     
+                        <div class="mb-3">
+                            <label for="NewPassword" class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="NewPassword" name="NewPassword" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="ConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Restablecer Contraseña</button>
+                    </form>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

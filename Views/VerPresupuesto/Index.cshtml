@@ -1,0 +1,80 @@
+@model IEnumerable<FinanManager.Models.PresupuestoViewModel>
+
+@{
+	ViewData["Title"] = "Presupuestos";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Lista de Presupuestos</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Tipo</th>
+								<th>Descripción</th>
+								<th>Fecha</th>
+								<th>Monto</th>
+								<th>Estado</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model != null) // Verificar que el modelo no sea nulo
+
+							{
+								@foreach (var presupuesto in Model)
+
+								{
+									<tr>
+										<td>@presupuesto.Tipo</td>
+										<td>@presupuesto.Descripcion</td>
+										<td>@presupuesto.Fecha.ToString("dd/MM/yyyy")</td>
+										<td>@presupuesto.Monto.ToString("C")</td>
+										<td>
+											@switch (presupuesto.Estado)
+
+											{
+
+												case 1:
+													<span class="text-danger">Rechazado</span>
+													break;
+
+												case 2:
+													<span class="text-warning">Pendiente</span>
+													break;
+
+												case 3:
+													<span class="text-success">Aprobado</span>
+													break;
+
+											}
+										</td>
+										<td>
+											<a href="@Url.Action("Detalles", new { id = presupuesto.Id, tipo = presupuesto.Tipo })" class="btn btn-info">Detalles</a>
+										</td>
+									</tr>
+								}
+							}
+
+							else
+
+							{
+								<tr>
+									<td colspan="6" class="text-center">No hay presupuestos disponibles.</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

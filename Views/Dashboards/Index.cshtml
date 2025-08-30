@@ -1,0 +1,140 @@
+@{
+	ViewData["Title"] = "FinanManager";
+	var roles = ViewBag.Roles as List<string> ?? new List<string>();
+	var distribucionPresupuesto = ViewBag.DistribucionPresupuesto as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
+	var tendenciaGastos = ViewBag.TendenciaGastos ?? new { };
+	bool hayDatosPresupuesto = distribucionPresupuesto.Any(d => d.Value > 0);
+	bool hayDatosGastos = ViewBag.TotalGastos > 0;
+}
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+}
+
+@section VendorScripts {
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+}
+
+@section PageScripts {
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const { jsPDF } = window.jspdf;
+			const roles = @Html.Raw(Json.Serialize(ViewBag.Roles));
+			const distribucionPresupuesto = @Html.Raw(Json.Serialize(ViewBag.DistribucionPresupuesto));
+			const hayDatosPresupuesto = @Html.Raw(Json.Serialize(hayDatosPresupuesto));
+			const hayDatosGastos = @Html.Raw(Json.Serialize(hayDatosGastos));
+
+			const coloresPersonalizados = ["#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD", "#8C564B", "#E377C2", "#7F7F7F", "#BCBD22", "#17BECF"];
+
+			// Presupuesto
+			if (hayDatosPresupuesto) {
+				const options1 = {
+					chart: { type: 'pie', height: 350 },
+					series: Object.values(distribucionPresupuesto),
+					labels: roles,
+					colors: coloresPersonalizados,
+					title: { text: 'Distribución del presupuesto por rol' }
+				};
+				new ApexCharts(document.querySelector("#budgetChart"), options1).render();
+
+				const options4 = {
+					chart: { type: 'bar', height: 350 },
+					series: [{ name: 'Presupuesto', data: Object.values(distribucionPresupuesto) }],
+					xaxis: { categories: roles },
+					colors: coloresPersonalizados
+				};
+				new ApexCharts(document.querySelector("#budgetBarChart"), options4).render();
+			} else {
+				document.querySelector("#budgetChart").innerHTML = '<div class="text-muted">No hay datos disponibles</div>';
+				document.querySelector("#budgetBarChart").innerHTML = '<div class="text-muted">No hay datos disponibles</div>';
+			}
+
+			// Gastos - solo gráfico de área (spendingTrendsChart)
+			if (hayDatosGastos) {
+				const tendencia = [
+					@ViewBag.TendenciaGastos.Enero, @ViewBag.TendenciaGastos.Febrero,
+					@ViewBag.TendenciaGastos.Marzo, @ViewBag.TendenciaGastos.Abril,
+					@ViewBag.TendenciaGastos.Mayo, @ViewBag.TendenciaGastos.Junio,
+					@ViewBag.TendenciaGastos.Julio, @ViewBag.TendenciaGastos.Agosto,
+					@ViewBag.TendenciaGastos.Septiembre, @ViewBag.TendenciaGastos.Octubre,
+					@ViewBag.TendenciaGastos.Noviembre, @ViewBag.TendenciaGastos.Diciembre
+				];
+
+				try {
+					const options3 = {
+						chart: { type: 'area', height: 350 },
+						series: [{ name: 'Tendencias de Gastos', data: tendencia }],
+						xaxis: { categories: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'] },
+						title: { text: 'Tendencias de Gastos por Mes' }
+					};
+					new ApexCharts(document.querySelector("#spendingTrendsChart"), options3).render();
+				} catch (e) {
+					console.error("Error renderizando spendingTrendsChart:", e);
+					const el = document.querySelector("#spendingTrendsChart");
+					if (el) el.innerHTML = '<div class="text-muted">No hay datos disponibles</div>';
+				}
+			} else {
+				const spendingTrendsChartEl = document.querySelector("#spendingTrendsChart");
+				if (spendingTrendsChartEl) spendingTrendsChartEl.innerHTML = '<div class="text-muted">No hay datos disponibles</div>';
+			}
+		});
+	</script>
+}
+
+<div class="row">
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/GestionPresupuesto/Index">Gestión de Presupuesto</a></h5>
+			</div>
+			<div class="card-body">
+				<div id="budgetChart"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/GestionPresupuesto/Index">Distribución del presupuesto por rol</a></h5>
+			</div>
+			<div class="card-body">
+				<div id="budgetBarChart"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/SeguimientoGastos/Index">Tendencias de Gastos</a></h5>
+			</div>
+			<div class="card-body">
+				<div id="spendingTrendsChart"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-12 col-md-6 mb-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="m-0"><a href="/Financiero/Index">Resumen Financiero</a></h5>
+			</div>
+			<div class="card-body">
+				<h3>$@(ViewBag.TotalPresupuesto?.ToString("N2") ?? "0.00")</h3>
+				<p class="text-muted">Presupuesto Total</p>
+				<div class="progress mb-3" style="height: 8px;">
+					<div class="progress-bar" role="progressbar" style="width: 100%;"></div>
+				</div>
+				<h3>$@(ViewBag.TotalGastos?.ToString("N2") ?? "0.00")</h3>
+				<p class="text-muted">Gastos Totales</p>
+				<div class="progress mb-3" style="height: 8px;">
+					<div class="progress-bar bg-danger" role="progressbar" style="width: @ViewBag.PorcentajeGastos.ToString("0.##")%"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

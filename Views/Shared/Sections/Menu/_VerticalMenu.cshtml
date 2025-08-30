@@ -1,0 +1,92 @@
+@{
+	TempData.Keep();
+	string? currentPage = ViewContext.HttpContext.Request.Path;
+
+	// Obtener el role_ID del usuario desde las claims
+	var role_IDClaim = User.FindFirst("RoleID");
+	int role_ID = role_IDClaim != null ? int.Parse(role_IDClaim.Value) : 0; // Valor predeterminado si no hay role_ID
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+<!-- Menu -->
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+	<div class="menu-inner-shadow"></div>
+
+	<!-- Logo con enlace a Index -->
+	<div id="g-app-brand" class="logo-container" style="display: flex; justify-content: center; align-items: center; width: 100%; height: auto; padding: 20px 0;">
+		<a href="@Url.Action("Index", "Dashboards")">
+			<img src="/img/Logo/logo.jpg" alt="Logo de la Empresa" style="width: 125px; height: auto;">
+		</a>
+	</div>
+
+	<!-- Menu Items -->
+	<ul class="menu-inner py-1">
+		<!-- Página Principal -->
+		@if (role_ID == 2) // Permisos de Roles
+		{
+			<li class='menu-item@(currentPage.StartsWith("/Dashboards/Index") ? " active" : "")'>
+				<a asp-controller="Dashboards" asp-action="Index" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-home"></i>
+					<div>Página Principal</div>
+				</a>
+			</li>
+		}
+
+		<!-- Gestión de Presupuestos -->
+		@if (Enumerable.Range(2, 20).Contains(role_ID)) // Permisos de Roles
+		{
+			<li class='menu-item@(currentPage.StartsWith("/GestionPresupuesto/index") ? " active" : "")'>
+				<a href="@Url.Action("Index", "GestionPresupuesto")" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-wallet"></i>
+					<div>Gestión de Presupuesto</div>
+				</a>
+			</li>
+		}
+
+		<!-- Seguimiento de Gastos -->
+		@if (Enumerable.Range(2, 20).Contains(role_ID))
+		{
+			<li class='menu-item@(currentPage.StartsWith("/SeguimientoGastos/index") ? " active" : "")'>
+				<a href="@Url.Action("Index", "SeguimientoGastos")" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-line-chart"></i>
+					<div>Seguimiento de Gastos</div>
+				</a>
+			</li>
+		}
+
+		<!-- Administrador -->
+		@if (role_ID == 1)
+		{
+			<li class='menu-item@(currentPage.StartsWith("/Administrador/index") ? " active" : "")'>
+				<a href="@Url.Action("Index", "Administrador")" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-user-circle"></i>
+					<div>Administrador</div>
+				</a>
+			</li>
+		}
+
+		<!-- Financiero -->
+		@if (role_ID == 2)
+		{
+			<li class='menu-item@(currentPage.StartsWith("/Financiero/index") ? " active" : "")'>
+				<a href="@Url.Action("Index", "Financiero")" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-money"></i>
+					<div>Financiero</div>
+				</a>
+			</li>
+		}
+
+		<!-- Cerrar Sesión -->
+		<li class='menu-item@(currentPage.StartsWith("/Auth/LoginBasic") ? " active" : "")'>
+			<form asp-controller="Auth" asp-action="Logout" method="post" class="menu-link" style="display: inline;">
+				<button type="submit" class="btn btn-link p-0" style="background: none; border: none; color: inherit;">
+					<i class="menu-icon tf-icons bx bx-log-out"></i>
+					<div>Cerrar Sesión</div>
+				</button>
+			</form>
+		</li>
+	</ul> <!-- Asegurar que esta etiqueta se cierra correctamente -->
+
+</aside> <!-- Asegurar que esta etiqueta también se cierra correctamente -->

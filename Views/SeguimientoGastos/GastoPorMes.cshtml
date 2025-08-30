@@ -1,0 +1,309 @@
+@model List<FinanManager.Models.Gasto>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Detalle de Gastos por Mes";
+}
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+}
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Detalle de Gastos por Mes</h5>
+                <p class="card-text">Consulta los gastos mensuales con su justificación.</p>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold">Filtros Avanzados</h6>
+                    <form id="filtrosForm" onsubmit="return false;">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="filtroFechaInicio" class="form-label">Fecha Inicio</label>
+                                <input type="date" class="form-control" id="filtroFechaInicio">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="filtroFechaFin" class="form-label">Fecha Fin</label>
+                                <input type="date" class="form-control" id="filtroFechaFin">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="filtroMontoMin" class="form-label">Monto Mínimo</label>
+                                <input type="number" class="form-control" id="filtroMontoMin" placeholder="Monto mínimo">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="filtroMontoMax" class="form-label">Monto Máximo</label>
+                                <input type="number" class="form-control" id="filtroMontoMax" placeholder="Monto máximo">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-primary" id="aplicarFiltrosBtn">Aplicar Filtros</button>
+                                <button type="button" class="btn btn-secondary" id="limpiarFiltrosBtn">Limpiar Filtros</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <table class="table table-bordered" id="gastosMensuales">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Gasto</th>
+                            <th>Cantidad</th>
+                            <th>Justificación</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var gasto in Model)
+                            {
+                                <tr>
+                                    <td>@gasto.Justificacion</td>
+
+                                    <td data-monto="@gasto.Total.ToString("0.00", CultureInfo.InvariantCulture)">@gasto.Total.ToString("N2")</td>
+
+                                    <td>@gasto.Justificacion</td>
+
+                                    <td data-fecha="@gasto.Fecha.ToString("yyyy-MM-dd")">@gasto.Fecha.ToShortDateString()</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">No hay datos para mostrar.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="mt-3">
+                    <button class="btn btn-primary" id="exportPdfBtn">Exportar a PDF</button>
+                    <button class="btn btn-success" id="exportExcelBtn" data-bs-toggle="modal" data-bs-target="#columnSelectionModal">Exportar a Excel</button>
+                    <button class="btn btn-warning" id="autoReportBtn" data-bs-toggle="modal" data-bs-target="#autoReportModal">Configurar Reporte Automático</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="columnSelectionModal" tabindex="-1" aria-labelledby="columnSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="columnSelectionModalLabel">Seleccionar Columnas para Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecciona las columnas que deseas incluir en el reporte:</p>
+                <form id="columnSelectionForm">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Nombre del Gasto" id="colNombre" checked>
+                        <label class="form-check-label" for="colNombre">Nombre del Gasto</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Cantidad" id="colCantidad" checked>
+                        <label class="form-check-label" for="colCantidad">Cantidad</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Justificación" id="colJustificacion" checked>
+                        <label class="form-check-label" for="colJustificacion">Justificación</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Fecha" id="colFecha" checked>
+                        <label class="form-check-label" for="colFecha">Fecha</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="confirmExportBtn">Exportar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="autoReportModal" tabindex="-1" aria-labelledby="autoReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="autoReportModalLabel">Configurar Reporte Automático</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="autoReportForm">
+                    <div class="mb-3">
+                        <label for="reportDateTime" class="form-label">Fecha y Hora de Envío</label>
+                        <input type="datetime-local" class="form-control" id="reportDateTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Formato del Reporte</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="reportFormat" id="formatExcel" value="excel" checked>
+                            <label class="form-check-label" for="formatExcel">Excel</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="reportFormat" id="formatPdf" value="pdf">
+                            <label class="form-check-label" for="formatPdf">PDF</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reportEmail" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="reportEmail" placeholder="ejemplo@correo.com" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmAutoReportBtn">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // --- Lógica de exportación y reportes (sin cambios en la tuya, solo se completa) ---
+    document.getElementById('exportPdfBtn').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.autoTable({
+            html: '#gastosMensuales',
+            styles: { fontSize: 10, font: 'helvetica' },
+            headStyles: { fillColor: [22, 160, 133] },
+            bodyStyles: { fontStyle: 'normal' },
+        });
+        doc.save('Detalle_Gastos_Mensuales.pdf');
+    });
+
+    document.getElementById('confirmExportBtn').addEventListener('click', function () {
+        const selectedColumns = Array.from(document.querySelectorAll('#columnSelectionForm input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+        const table = document.getElementById('gastosMensuales');
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+
+        // Incluir solo las filas visibles después de filtrar
+        const rows = Array.from(table.querySelectorAll('tbody tr')).filter(tr => tr.style.display !== 'none');
+
+        const columnIndices = selectedColumns.map(col => headers.indexOf(col));
+        const filteredData = rows.map(row => {
+            const cells = Array.from(row.querySelectorAll('td'));
+            return columnIndices.map(index => cells[index].textContent);
+        });
+
+        const worksheet = XLSX.utils.aoa_to_sheet([
+            selectedColumns,
+            ...filteredData,
+        ]);
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Gastos Mensuales');
+        XLSX.writeFile(workbook, 'Detalle_Gastos_Mensuales.xlsx');
+
+        // Ocultar el modal (requiere que Bootstrap esté cargado)
+        var myModalEl = document.getElementById('columnSelectionModal');
+        var modal = bootstrap.Modal.getInstance(myModalEl)
+        modal.hide();
+    });
+
+    document.getElementById('confirmAutoReportBtn').addEventListener('click', function () {
+        const reportDateTime = document.getElementById('reportDateTime').value;
+        const reportFormat = document.querySelector('input[name="reportFormat"]:checked').value;
+        const reportEmail = document.getElementById('reportEmail').value;
+
+        if (!reportDateTime || !reportEmail) {
+            alert('Por favor, completa todos los campos.');
+            return;
+        }
+
+        const selectedDateTime = new Date(reportDateTime).getTime();
+        const currentDateTime = new Date().getTime();
+
+        if (selectedDateTime <= currentDateTime) {
+            alert('La fecha y hora deben ser en el futuro.');
+            return;
+        }
+
+        // Aquí iría la lógica para enviar la configuración al servidor
+        // Por ejemplo, usando fetch a un endpoint de tu API.
+        console.log({
+            dateTime: reportDateTime,
+            format: reportFormat,
+            email: reportEmail
+        });
+        alert('Configuración de reporte enviada al servidor (simulación).');
+
+        var myModalEl = document.getElementById('autoReportModal');
+        var modal = bootstrap.Modal.getInstance(myModalEl)
+        modal.hide();
+    });
+
+    // --- Lógica de filtrado (Esta parte ya estaba correcta y es la clave de la solución) ---
+    document.addEventListener('DOMContentLoaded', function () {
+        const filtroFechaInicio = localStorage.getItem('filtroFechaInicio');
+        const filtroFechaFin = localStorage.getItem('filtroFechaFin');
+        const filtroMontoMin = localStorage.getItem('filtroMontoMin');
+        const filtroMontoMax = localStorage.getItem('filtroMontoMax');
+
+        if (filtroFechaInicio) document.getElementById('filtroFechaInicio').value = filtroFechaInicio;
+        if (filtroFechaFin) document.getElementById('filtroFechaFin').value = filtroFechaFin;
+        if (filtroMontoMin) document.getElementById('filtroMontoMin').value = filtroMontoMin;
+        if (filtroMontoMax) document.getElementById('filtroMontoMax').value = filtroMontoMax;
+
+        if (filtroFechaInicio || filtroFechaFin || filtroMontoMin || filtroMontoMax) {
+            aplicarFiltros();
+        }
+    });
+
+    document.getElementById('aplicarFiltrosBtn').addEventListener('click', aplicarFiltros);
+    document.getElementById('limpiarFiltrosBtn').addEventListener('click', limpiarFiltros);
+
+    function aplicarFiltros() {
+        const filtroFechaInicio = document.getElementById('filtroFechaInicio').value;
+        const filtroFechaFin = document.getElementById('filtroFechaFin').value;
+        const filtroMontoMin = parseFloat(document.getElementById('filtroMontoMin').value) || 0;
+        const filtroMontoMax = parseFloat(document.getElementById('filtroMontoMax').value) || Infinity;
+
+        localStorage.setItem('filtroFechaInicio', filtroFechaInicio);
+        localStorage.setItem('filtroFechaFin', filtroFechaFin);
+        localStorage.setItem('filtroMontoMin', filtroMontoMin.toString());
+        localStorage.setItem('filtroMontoMax', filtroMontoMax === Infinity ? '' : filtroMontoMax.toString());
+
+        const filas = document.querySelectorAll('#gastosMensuales tbody tr');
+        if (filas.length === 0 || (filas.length === 1 && filas[0].cells.length === 1)) return;
+
+        const fechaInicio = filtroFechaInicio ? new Date(filtroFechaInicio + 'T00:00:00') : null;
+        const fechaFin = filtroFechaFin ? new Date(filtroFechaFin + 'T23:59:59') : null;
+
+        filas.forEach(fila => {
+            const monto = parseFloat(fila.cells[1].dataset.monto);
+            const fecha = new Date(fila.cells[3].dataset.fecha + 'T00:00:00');
+
+            const cumpleFecha = (!fechaInicio || fecha >= fechaInicio) && (!fechaFin || fecha <= fechaFin);
+            const cumpleMonto = monto >= filtroMontoMin && monto <= filtroMontoMax;
+
+            fila.style.display = cumpleFecha && cumpleMonto ? '' : 'none';
+        });
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('filtrosForm').reset();
+        localStorage.removeItem('filtroFechaInicio');
+        localStorage.removeItem('filtroFechaFin');
+        localStorage.removeItem('filtroMontoMin');
+        localStorage.removeItem('filtroMontoMax');
+
+        const filas = document.querySelectorAll('#gastosMensuales tbody tr');
+        filas.forEach(fila => fila.style.display = '');
+    }
+</script>

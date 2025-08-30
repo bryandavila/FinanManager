@@ -1,0 +1,607 @@
+@{
+	ViewData["Title"] = "Gestión Financiera";
+}
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+	<link rel="stylesheet" href="~/vendor/libs/bootstrap/bootstrap.min.css" />
+	<style>
+		#comparativoAnualChart {
+			min-height: 350px;
+		}
+
+		#tablaVariaciones {
+			display: none;
+		}
+
+		.table-danger {
+			background-color: #f8d7da;
+		}
+
+		.table-warning {
+			background-color: #fff3cd;
+		}
+
+		.text-success {
+			font-weight: bold;
+		}
+
+		.text-danger {
+			font-weight: bold;
+		}
+	</style>
+}
+@section VendorScripts {
+	<script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+	<script src="~/vendor/libs/bootstrap/bootstrap.bundle.min.js"></script>
+}
+@section PageScripts {
+	<script src="~/js/GestionFinanciera.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+
+
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<!-- Título de la página -->
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Gestión Financiera</h4>
+		</div>
+    </div>
+	
+
+	<!-- Ver presupuestos enviados -->
+    <div class="row">
+	<div class="col-12 col-md-6 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<h5 class="card-title">Presupuestos pendientes de aprobación</h5>
+				<p class="card-text">Consulta el estado de los presupuestos pendientes de aprobación.</p>
+				<a href="/RevisarPresupuesto/Index" class="btn btn-info">Presupuestos pendientes de aprobación</a>
+			</div>
+		</div>
+	</div>
+
+    <!-- Ver presupuestos Aprobados -->
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Ver Presupuestos Aprobados</h5>
+                <p class="card-text">Seleccione el tipo de presupuesto para desplegar</p>
+
+                <!-- Dropdown para seleccionar la tabla -->
+                <form method="get" action="@Url.Action("GetBienesAprobados", "Bienes")">
+                    <div class="form-group">
+                        <label for="tableName">Selecciona el tipo de presupuesto:</label>
+                        <select id="tableName" name="tableName" class="form-control">
+                            <option value="Gasto">Gasto</option>
+                            <option value="Bienes">Bienes</option>
+                            <option value="Proyectos">Proyectos</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info">Ver gastos aprobados por departamento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+	<!-- Descarga de Reportes -->
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Descarga de Reportes</h4>
+		</div>
+	</div>
+
+	<!-- Reporte Anual -->
+	<div class="card mb-4">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Reporte Anual</h5>
+		</div>
+		<div class="card-body">
+			<p>Genera y descarga el reporte anual de gastos.</p>
+			<input type="number" id="anio" placeholder="Año" class="form-control mb-2" min="1900" max="@DateTime.Now.Year+1" />
+			<select id="formatoAnual" class="form-control mb-2">
+				<option value="pdf">PDF</option>
+				<option value="excel">Excel</option>
+			</select>
+			<button onclick="descargarReporteAnual()" class="btn btn-primary">Descargar Reporte Anual</button>
+		</div>
+	</div>
+
+	<!-- Reporte Mensual -->
+	<div class="card mb-4">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Reporte Mensual</h5>
+		</div>
+		<div class="card-body">
+			<p>Genera y descarga el reporte mensual de gastos.</p>
+			<input type="number" id="anioMensual" placeholder="Año" class="form-control mb-2" min="1900" max="@DateTime.Now.Year+1" />
+			<input type="number" id="mes" placeholder="Mes (1-12)" class="form-control mb-2" min="1" max="12" />
+			<select id="formatoMensual" class="form-control mb-2">
+				<option value="pdf">PDF</option>
+				<option value="excel">Excel</option>
+			</select>
+			<button onclick="descargarReporteMensual()" class="btn btn-info">Descargar Reporte Mensual</button>
+		</div>
+	</div>
+
+	<!-- Reporte Diario -->
+	<div class="card mb-4">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Reporte Diario</h5>
+		</div>
+		<div class="card-body">
+			<p>Genera y descarga el reporte diario de gastos.</p>
+			<input type="date" id="fecha" class="form-control mb-2" />
+			<select id="formatoDiario" class="form-control mb-2">
+				<option value="pdf">PDF</option>
+				<option value="excel">Excel</option>
+			</select>
+			<button onclick="descargarReporteDiario()" class="btn btn-success">Descargar Reporte Diario</button>
+		</div>
+	</div>
+
+	<!-- Resumen General de Gastos -->
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Resumen General de Gastos</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Distribución de Gastos</h5>
+					<div id="graficoGastosGenerales"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Gastos por Rol -->
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Gastos por Rol</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Seleccione un Rol</h5>
+					<select id="rolSelect" class="form-control mb-2">
+						<option value="2">Jefe Financiero</option>
+						<option value="3">Jefe Operaciones</option>
+						<option value="4">TI</option>
+						<option value="5">Plataformas</option>
+						<option value="6">Seguros</option>
+						<option value="7">Cobros</option>
+						<option value="8">UEA</option>
+						<option value="9">Credito</option>
+						<option value="10">SBD</option>
+						<option value="11">Contabilidad</option>
+						<option value="12">Captacion</option>
+						<option value="13">Medios Electronicos</option>
+						<option value="14">Auditoria Interna</option>
+						<option value="15">Oficialia de Cumplimiento</option>
+						<option value="16">Unidad de Riegos</option>
+						<option value="17">Gerencias</option>
+						<option value="18">Recursos Humanos</option>
+						<option value="19">Inteligencias Comercial</option>
+						<option value="20">Mercadeo</option>
+						<option value="21">Contact Center</option>
+					</select>
+					<div id="graficoGastosPorRol"></div>
+					<div id="mensajeSinDatos" style="display: none; text-align: center; background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 20px; border-radius: 8px; font-size: 18px; font-weight: bold;">
+						¡No hay datos de gastos disponibles para este departamento!
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Comparativo Anual -->
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Comparativo de Presupuestos Aprobados</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Comparativo anual de presupuestos</h5>
+					<p class="card-text">Compara presupuestos aprobados entre diferentes años para detectar áreas de mejora.</p>
+
+					<!-- Inputs de texto para años -->
+					<div class="row mb-4">
+						<div class="col-md-4">
+							<label class="form-label">Año 1</label>
+							<input type="number" id="anio1" class="form-control" value="2025"
+								   min="2000" max="2050" />
+						</div>
+						<div class="col-md-4">
+							<label class="form-label">Año 2</label>
+							<input type="number" id="anio2" class="form-control" value="2024"
+								   min="2000" max="2050" />
+						</div>
+						<div class="col-md-4 d-flex align-items-end">
+							<button id="btnComparar" class="btn btn-primary">Comparar</button>
+						</div>
+					</div>
+
+					<!-- Gráfico comparativo -->
+					<div id="comparativoAnualChart"></div>
+
+					<!-- Tabla de variaciones -->
+					<div class="mt-4" id="tablaVariaciones">
+						<h6>Análisis de variaciones</h6>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Categoría</th>
+									<th id="anioHeader1">Año 2025</th>
+									<th id="anioHeader2">Año 2024</th>
+									<th>Variación</th>
+									<th>Análisis</th>
+								</tr>
+							</thead>
+							<tbody id="variacionesBody">
+								<!-- Datos se llenarán con JavaScript -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	// Funciones para descarga de reportes
+	function descargarReporteAnual() {
+		var anio = document.getElementById('anio').value;
+		var formato = document.getElementById('formatoAnual').value;
+		if (!anio) {
+			alert("Por favor, ingrese un año.");
+			return;
+		}
+		fetch(`/Financiero/DescargarReporteAnual?año=${anio}&formato=${formato}`)
+			.then(response => {
+				if (response.status === 204) {
+					alert("No hay datos disponibles para el año seleccionado.");
+				} else {
+					window.location.href = `/Financiero/DescargarReporteAnual?año=${anio}&formato=${formato}`;
+				}
+			});
+	}
+
+	function descargarReporteMensual() {
+		var anio = document.getElementById('anioMensual').value;
+		var mes = document.getElementById('mes').value;
+		var formato = document.getElementById('formatoMensual').value;
+		if (!anio || !mes) {
+			alert("Por favor, ingrese un año y un mes.");
+			return;
+		}
+		fetch(`/Financiero/DescargarReporteMensual?año=${anio}&mes=${mes}&formato=${formato}`)
+			.then(response => {
+				if (response.status === 204) {
+					alert("No hay datos disponibles para el mes seleccionado.");
+				} else {
+					window.location.href = `/Financiero/DescargarReporteMensual?año=${anio}&mes=${mes}&formato=${formato}`;
+				}
+			});
+	}
+
+	function descargarReporteDiario() {
+		var fecha = document.getElementById('fecha').value;
+		var formato = document.getElementById('formatoDiario').value;
+		if (!fecha) {
+			alert("Por favor, seleccione una fecha.");
+			return;
+		}
+		fetch(`/Financiero/DescargarReporteDiario?fecha=${fecha}&formato=${formato}`)
+			.then(response => {
+				if (response.status === 204) {
+					alert("No hay datos disponibles para la fecha seleccionada.");
+				} else {
+					window.location.href = `/Financiero/DescargarReporteDiario?fecha=${fecha}&formato=${formato}`;
+				}
+			});
+	}
+
+	// Gráfico de gastos generales
+	document.addEventListener("DOMContentLoaded", function () {
+		fetch('/Financiero/ObtenerGastosGenerales')
+			.then(response => response.json())
+			.then(data => {
+				console.log(data);
+				if (data.data.length === 0) {
+					console.error("No hay datos para mostrar.");
+					return;
+				}
+
+				var options = {
+					series: [{
+						name: "Gastos",
+						data: data.data.map(item => item.totalGastos)
+					}],
+					chart: {
+						type: 'bar',
+						height: 350
+					},
+					xaxis: {
+						categories: data.data.map(item => item.rol)
+					}
+				};
+
+				var chart = new ApexCharts(document.querySelector("#graficoGastosGenerales"), options);
+				chart.render();
+			})
+			.catch(error => console.error("Error al obtener datos:", error));
+	});
+
+	// Gráfico de gastos por rol
+	let chartRol = null;
+
+	function cargarGraficoPorRol(rolId) {
+		fetch(`/Financiero/ObtenerGastosPorRol?rolId=${rolId}`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`Error HTTP: ${response.status}`);
+				}
+				return response.json();
+			})
+			.then(data => {
+				const cuentasHijas = data.map(item => `Cuenta ${item.cuentaHija}`);
+				const totalGastos = data.map(item => item.totalGastos);
+
+				if (data.length === 0) {
+					document.getElementById('mensajeSinDatos').style.display = 'block';
+					document.getElementById('graficoGastosPorRol').style.display = 'none';
+				} else {
+					document.getElementById('mensajeSinDatos').style.display = 'none';
+					document.getElementById('graficoGastosPorRol').style.display = 'block';
+
+					if (chartRol) {
+						chartRol.destroy();
+					}
+
+					const options = {
+						chart: {
+							type: 'pie',
+							height: 350
+						},
+						series: totalGastos,
+						labels: cuentasHijas,
+						colors: ['#3b82f6', '#10b981', '#ef4444', '#f59e0b'],
+						dataLabels: {
+							enabled: true,
+							formatter: function (val) {
+								return val.toFixed(2) + "%";
+							}
+						}
+					};
+
+					chartRol = new ApexCharts(document.querySelector("#graficoGastosPorRol"), options);
+					chartRol.render();
+				}
+			})
+			.catch(error => {
+				console.error('Error al cargar los datos:', error);
+				alert('No se pudieron cargar los datos de gastos por rol.');
+			});
+	}
+
+	document.addEventListener("DOMContentLoaded", function () {
+		const rolSelect = document.getElementById('rolSelect');
+		rolSelect.value = 2;
+		cargarGraficoPorRol(2);
+	});
+
+	document.getElementById('rolSelect').addEventListener('change', function () {
+		const rolId = this.value;
+		cargarGraficoPorRol(rolId);
+	});
+
+	// Comparativo anual
+	let comparativoChart = null;
+
+	function cargarComparativoAnual() {
+		const anio1 = document.getElementById('anio1').value;
+		const anio2 = document.getElementById('anio2').value;
+
+		if (!anio1 || !anio2) {
+			alert('Por favor ingrese ambos años para comparar.');
+			return;
+		}
+
+		if (anio1 === anio2) {
+			alert('Por favor ingrese años diferentes para comparar.');
+			return;
+		}
+
+		fetch(`/Financiero/ObtenerComparativoAnualAprobados?año1=${anio1}&año2=${anio2}`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Error al obtener datos');
+				}
+				return response.json();
+			})
+			.then(data => {
+				if (data.length < 2) {
+					alert('No hay suficientes datos para comparar.');
+					return;
+				}
+
+				document.getElementById('anioHeader1').textContent = `Año ${data[0].año}`;
+				document.getElementById('anioHeader2').textContent = `Año ${data[1].año}`;
+				document.getElementById('tablaVariaciones').style.display = 'block';
+
+				const categories = ['Bienes', 'Gastos', 'Proyectos', 'Total General'];
+				const series = [
+					{
+						name: `Año ${data[0].año}`,
+						data: [
+							data[0].totalBienes,
+							data[0].totalGastos,
+							data[0].totalProyectos,
+							data[0].totalGeneral
+						]
+					},
+					{
+						name: `Año ${data[1].año}`,
+						data: [
+							data[1].totalBienes,
+							data[1].totalGastos,
+							data[1].totalProyectos,
+							data[1].totalGeneral
+						]
+					}
+				];
+
+				const variaciones = {
+					bienes: calcularVariacion(data[0].totalBienes, data[1].totalBienes),
+					gastos: calcularVariacion(data[0].totalGastos, data[1].totalGastos),
+					proyectos: calcularVariacion(data[0].totalProyectos, data[1].totalProyectos),
+					total: calcularVariacion(data[0].totalGeneral, data[1].totalGeneral)
+				};
+
+				actualizarTablaVariaciones(data, variaciones);
+				renderizarGraficoComparativo(categories, series);
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('Ocurrió un error al obtener los datos comparativos.');
+			});
+	}
+
+	document.getElementById('btnComparar').addEventListener('click', cargarComparativoAnual);
+
+	function calcularVariacion(valorActual, valorAnterior) {
+		if (valorAnterior === 0) return 0;
+		return ((valorActual - valorAnterior) / valorAnterior) * 100;
+	}
+
+	function actualizarTablaVariaciones(data, variaciones) {
+		const tbody = document.getElementById('variacionesBody');
+		tbody.innerHTML = '';
+
+		const filas = [
+			{ categoria: 'Bienes', valor1: data[0].totalBienes, valor2: data[1].totalBienes, variacion: variaciones.bienes },
+			{ categoria: 'Gastos', valor1: data[0].totalGastos, valor2: data[1].totalGastos, variacion: variaciones.gastos },
+			{ categoria: 'Proyectos', valor1: data[0].totalProyectos, valor2: data[1].totalProyectos, variacion: variaciones.proyectos },
+			{ categoria: 'Total General', valor1: data[0].totalGeneral, valor2: data[1].totalGeneral, variacion: variaciones.total }
+		];
+
+		filas.forEach(fila => {
+			const tr = document.createElement('tr');
+
+			if (Math.abs(fila.variacion) > 20) {
+				tr.classList.add('table-warning');
+			}
+			if (Math.abs(fila.variacion) > 50) {
+				tr.classList.remove('table-warning');
+				tr.classList.add('table-danger');
+			}
+
+			tr.innerHTML = `
+				<td>${fila.categoria}</td>
+				<td>${formatCurrency(fila.valor1)}</td>
+				<td>${formatCurrency(fila.valor2)}</td>
+				<td class="${fila.variacion >= 0 ? 'text-success' : 'text-danger'}">
+					${fila.variacion.toFixed(2)}%
+				</td>
+				<td>${generarAnalisis(fila.categoria, fila.variacion)}</td>
+			`;
+
+			tbody.appendChild(tr);
+		});
+	}
+
+	function formatCurrency(value) {
+		return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(value);
+	}
+
+	function generarAnalisis(categoria, variacion) {
+		if (Math.abs(variacion) < 10) {
+			return `Variación normal en ${categoria.toLowerCase()}.`;
+		} else if (variacion > 0) {
+			return `Aumento significativo en ${categoria.toLowerCase()}. Revisar posibles causas.`;
+		} else {
+			return `Reducción significativa en ${categoria.toLowerCase()}. Verificar si es por optimización o recorte.`;
+		}
+	}
+
+	function renderizarGraficoComparativo(categories, series) {
+		const options = {
+			series: series,
+			chart: {
+				type: 'bar',
+				height: 350,
+				stacked: false
+			},
+			plotOptions: {
+				bar: {
+					horizontal: false,
+					columnWidth: '55%',
+					endingShape: 'rounded'
+				},
+			},
+			dataLabels: {
+				enabled: false
+			},
+			stroke: {
+				show: true,
+				width: 2,
+				colors: ['transparent']
+			},
+			xaxis: {
+				categories: categories,
+			},
+			yaxis: {
+				title: {
+					text: 'Monto (CRC)'
+				},
+				labels: {
+					formatter: function(value) {
+						return formatCurrency(value);
+					}
+				}
+			},
+			fill: {
+				opacity: 1
+			},
+			tooltip: {
+				y: {
+					formatter: function(value) {
+						return formatCurrency(value);
+					}
+				}
+			},
+			colors: ['#3b82f6', '#10b981'],
+		};
+
+		if (comparativoChart) {
+			comparativoChart.updateOptions(options);
+		} else {
+			comparativoChart = new ApexCharts(document.querySelector("#comparativoAnualChart"), options);
+			comparativoChart.render();
+		}
+	}
+
+	// Cargar comparativo al inicio con 2025 y 2024
+	document.addEventListener('DOMContentLoaded', function() {
+		cargarComparativoAnual();
+	});
+</script>

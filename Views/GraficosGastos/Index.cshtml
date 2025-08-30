@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Gráficos de Gastos por Categoría";
+    // Se convierten los datos del ViewBag a una colección para poder verificar si está vacía.
+    var datosGraficos = ViewBag.DatosGraficos as IEnumerable<dynamic>;
+    bool hayDatos = datosGraficos != null && datosGraficos.Any();
+}
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+
+@section PageScripts {
+    @if (hayDatos) // El script de los gráficos solo se carga si hay datos para mostrar.
+    {
+        <script src="~/js/GraficosGastos.js"></script>
+    }
+}
+
+@if (hayDatos)
+{
+    <div id="datosGastos" style="display: none;">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DatosGraficos))
+    </div>
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gráficos de Gastos por Categoría</h4>
+        </div>
+    </div>
+
+    @if (hayDatos)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gastos por Categoría</h5>
+                        <div id="graficoBarras"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Distribución de Gastos</h5>
+                        <div id="graficoDonut"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger text-center" role="alert">
+                    <i class="bx bx-error-circle fs-3 align-middle me-2"></i> <span class="align-middle fs-5">¡No hay datos de gastos disponibles para mostrar!</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>

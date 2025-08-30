@@ -1,0 +1,119 @@
+@model IEnumerable<FinanManager.Models.PresupuestoViewModel>
+
+@{
+    ViewData["Title"] = "Presupuestos rechazados";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Presupuestos rechazados</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Descripción</th>
+                                <th>Fecha de Rechazo</th>
+                                <th>Motivo de Rechazo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var presupuesto in Model)
+                            {
+                                <tr>
+                                    <td>@presupuesto.Tipo</td>
+                                    <td>@presupuesto.Descripcion</td>
+                                    <td>@presupuesto.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>@presupuesto.MotivoRechazo</td>
+                                    <td>
+                                        <a href="@Url.Action("EditarRechazado", new { id = presupuesto.Id, tipo = presupuesto.Tipo })" class="btn btn-warning">Editar</a>
+                                        <form class="reenviar-form d-inline" method="post" action="@Url.Action("ReenviarPresupuesto")">
+                                            <input type="hidden" name="id" value="@presupuesto.Id" />
+                                            <input type="hidden" name="tipo" value="@presupuesto.Tipo" />
+                                            <button type="submit" class="btn btn-success">Reenviar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mensajes de éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Éxito</h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <p id="successMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.reenviar-form').on('submit', function(e) {
+            e.preventDefault(); // Evita el envío tradicional
+
+            var form = $(this);
+            var url = form.attr('action');
+            var data = form.serialize();
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "¡Éxito!",
+                            text: response.message,
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            location.reload(); // Recargar la tabla
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: response.message
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Ocurrió un error al procesar la solicitud."
+                    });
+                }
+            });
+        });
+    });
+
+</script>

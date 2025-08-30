@@ -1,0 +1,448 @@
+@using System.Dynamic
+@model List<dynamic>?
+<<<<<<< HEAD
+=======
+
+>>>>>>> af1390e77d894cba1caa7f289628394d43fe3ee0
+@{
+    var tableType = ViewBag.TableType as string ?? "Bienes";
+    ViewBag.Title = tableType switch
+    {
+        "Bienes" => "Bienes Aprobados",
+        "Gasto" => "Gastos Aprobados",
+        "Proyectos" => "Proyectos Aprobados",
+        _ => "Registros Aprobados"
+    };
+}
+
+<<<<<<< HEAD
+<style>
+    /* Estilos generales */
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding: 20px;
+        gap: 15px;
+        background-color: #f8f9fa;
+    }
+
+    /* Filtros - Parte superior */
+    .filter-section {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .filter-container {
+        display: flex;
+        align-items: flex-end;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .dropdown-group {
+        flex: 1;
+        max-width: 300px;
+    }
+
+    /* Estilo verde para controles */
+    .form-select-sm {
+        border-radius: 6px !important;
+        border: 1px solid #198754;
+        color: #198754;
+        font-size: 0.9rem;
+        height: 38px;
+    }
+
+    .form-label {
+        color: #198754;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .btn-filter {
+        border-radius: 6px !important;
+        padding: 0.5rem 1rem;
+        height: 38px;
+        border: 1px solid #198754;
+        color: #198754;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .btn-filter:hover {
+            background-color: #198754;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    /* Tabla - Estilo verde oscuro */
+    .table-section {
+        flex: 1;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 6px;
+        border: 1px solid #198754;
+    }
+
+    #dataTable {
+        width: 100%;
+        margin-bottom: 0;
+        --bs-table-bg: #ffffff;
+        --bs-table-striped-bg: #f0f9f5;
+        --bs-table-hover-bg: #e1f3ec;
+        --bs-table-border-color: #d1e7dd;
+    }
+
+        #dataTable thead {
+            --bs-table-bg: #198754;
+            --bs-table-color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        #dataTable th {
+            border-bottom: 2px solid #146c43 !important;
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+
+        #dataTable td {
+            padding: 10px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #d1e7dd;
+        }
+
+        #dataTable tr:hover td {
+            background-color: #d1f2e1 !important;
+        }
+
+    /* Botón Regresar */
+    .footer-section {
+        text-align: center;
+        padding: 15px 0;
+    }
+
+    .btn-outline-success {
+        --bs-btn-color: #198754;
+        --bs-btn-border-color: #198754;
+        --bs-btn-hover-bg: #198754;
+        --bs-btn-hover-border-color: #198754;
+        --bs-btn-active-bg: #157347;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        border-radius: 50px;
+    }
+
+    /* Título */
+    .page-title {
+        color: #198754;
+        font-weight: 600;
+        margin-bottom: 0;
+        text-align: center;
+    }
+
+    /* Alertas */
+    .alert-warning {
+        border-left: 4px solid #ffc107;
+    }
+</style>
+
+<div class="main-container">
+    <!-- 1. Encabezado y Filtros -->
+    <div class="filter-section">
+        <h2 class="page-title">@ViewBag.Title</h2>
+
+        @if (ViewBag.NoDataMessage != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show mt-3">
+                @ViewBag.NoDataMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="filter-container">
+            <div class="dropdown-group">
+                <label class="form-label">FILTRAR POR ROL:</label>
+                <select class="form-select form-select-sm" id="roleFilter">
+                    <option value="">Todos los roles</option>
+                    @if (Model != null)
+                    {
+                        var roles = Model.Select(x => x.RoleName).Distinct().ToList();
+                        foreach (var role in roles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    }
+                </select>
+            </div>
+            <button id="applyFilter" class="btn btn-outline-success btn-filter">
+                <i class="fas fa-filter me-2"></i> APLICAR FILTRO
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Tabla -->
+    <div class="table-section">
+        <div class="table-container">
+            <table class="table table-striped table-hover" id="dataTable">
+                <thead>
+                    <tr>
+                        @switch (tableType)
+                        {
+                            case "Bienes":
+                                <th>DESCRIPCIÓN</th>
+                                <th>CANTIDAD</th>
+                                <th>MONTO UNITARIO</th>
+                                <th>TOTAL</th>
+                                <th>MOTIVO RECHAZO</th>
+                                break;
+
+                            case "Gasto":
+                                <th>CUENTA MADRE</th>
+                                <th>JUSTIFICACIÓN</th>
+                                <th>TOTAL</th>
+                                break;
+
+                            case "Proyectos":
+                                <th>DESCRIPCIÓN</th>
+                                <th>VALOR ESTIMADO</th>
+                                <th>V. COMERCIAL</th>
+                                <th>V. TÉCNICA</th>
+                                <th>V. LEGAL</th>
+                                <th>V. GESTIÓN</th>
+                                <th>V. FINANCIERA</th>
+                                break;
+                        }
+                        <th>FECHA</th>
+                        <th>ROL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                @switch (tableType)
+                                {
+                                    case "Bienes":
+                                        <td>@item.Descripcion</td>
+                                        <td>@item.Cantidad</td>
+                                        <td>@item.MontoUnitario.ToString("C")</td>
+                                        <td>@item.Total.ToString("C")</td>
+                                        <td>@(item.MotivoRechazo ?? "N/A")</td>
+                                        break;
+
+                                    case "Gasto":
+                                        <td>@item.CuentaMadre_ID</td>
+                                        <td>@item.Justificacion</td>
+                                        <td>@item.Total.ToString("C")</td>
+                                        break;
+
+                                    case "Proyectos":
+                                        <td>@item.Descripcion</td>
+                                        <td>@item.ValorEstimado.ToString("C")</td>
+                                        <td>@(item.VialidadComercial ? "✅" : "❌")</td>
+                                        <td>@(item.VialidadTecnica ? "✅" : "❌")</td>
+                                        <td>@(item.VialidadLegal ? "✅" : "❌")</td>
+                                        <td>@(item.VialidadGestion ? "✅" : "❌")</td>
+                                        <td>@(item.VialidadFinanciera ? "✅" : "❌")</td>
+                                        break;
+                                }
+                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@item.RoleName</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="@(tableType == "Bienes" ? 6 : tableType == "Gasto" ? 3 : 8)" class="text-center text-muted py-4">
+                                No se encontraron registros
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. Pie de página -->
+    <div class="footer-section">
+        <a href="javascript:history.back()" class="btn btn-outline-success">
+            <i class="fas fa-arrow-left me-2"></i> REGRESAR
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Filtrado de tabla
+            $('#applyFilter').click(function() {
+                var selectedRole = $('#roleFilter').val().toLowerCase();
+                $('#dataTable tbody tr').each(function() {
+                    var rowRole = $(this).find('td:last').text().toLowerCase();
+                    $(this).toggle(selectedRole === '' || rowRole === selectedRole);
+                });
+            });
+
+            // Ordenar por fecha descendente por defecto
+            var table = $('#dataTable');
+            var tbody = table.find('tbody');
+            var rows = tbody.find('tr').toArray();
+
+            rows.sort(function(a, b) {
+                var dateA = new Date($(a).find('td').eq(-2).text().split('/').reverse().join('-'));
+                var dateB = new Date($(b).find('td').eq(-2).text().split('/').reverse().join('-'));
+                return dateB - dateA;
+            });
+
+            tbody.empty().append(rows);
+        });
+    </script>
+}
+=======
+<h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+@if (ViewBag.NoDataMessage != null)
+{
+    <div class="alert alert-warning">
+        @ViewBag.NoDataMessage
+    </div>
+}
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    @switch (tableType)
+                    {
+                        case "Bienes":
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Monto Unitario</th>
+                            <th>Total</th>
+                            <th>Motivo Rechazo</th>
+                            break;
+
+                        case "Gasto":
+                            <th>Cuenta Madre</th>
+                            <th>Justificación</th>
+                            <th>Total</th>
+                            break;
+
+                        case "Proyectos":
+                            <th>Descripción</th>
+                            <th>Valor Estimado</th>
+                            <th>V. Comercial</th>
+                            <th>V. Técnica</th>
+                            <th>V. Legal</th>
+                            <th>V. Gestión</th>
+                            <th>V. Financiera</th>
+                            break;
+                    }
+                    <th>Fecha</th>
+                    <th>Rol</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            @switch (tableType)
+                            {
+                                case "Bienes":
+                                    <td>@item.Descripcion</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>@item.MontoUnitario.ToString("C")</td>
+                                    <td>@item.Total.ToString("C")</td>
+                                    <td>@item.MotivoRechazo</td>
+                                    break;
+
+                                case "Gasto":
+                                    <td>@item.CuentaMadre_ID</td>
+                                    <td>@item.Justificacion</td>
+                                    <td>@item.Total.ToString("C")</td>
+                                    break;
+
+                                case "Proyectos":
+                                    <td>@item.Descripcion</td>
+                                    <td>@item.ValorEstimado.ToString("C")</td>
+                                    <td>@(item.VialidadComercial ? "✅" : "❌")</td>
+                                    <td>@(item.VialidadTecnica ? "✅" : "❌")</td>
+                                    <td>@(item.VialidadLegal ? "✅" : "❌")</td>
+                                    <td>@(item.VialidadGestion ? "✅" : "❌")</td>
+                                    <td>@(item.VialidadFinanciera ? "✅" : "❌")</td>
+                                    break;
+                            }
+                            <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@item.RoleName</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-start mt-3">
+        <a href="javascript:history.back()" class="btn btn-outline-primary rounded-pill">
+            <i class="fas fa-arrow-circle-left me-2"></i> Regresar
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    @if (ViewBag.NoDataMessage != null)
+    {
+        <script>
+            toastr.warning('@ViewBag.NoDataMessage');
+        </script>
+    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .table-container {
+            margin-bottom: 2rem;
+        }
+
+        .btn-outline-primary {
+            transition: all 0.3s ease;
+            border-width: 2px;
+            padding: 8px 20px;
+            font-size: 1rem;
+        }
+
+            .btn-outline-primary:hover {
+                background-color: #0d6efd;
+                color: white;
+                transform: translateX(-3px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+        .fa-arrow-circle-left {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .btn-outline-primary:hover .fa-arrow-circle-left {
+            transform: translateX(-3px);
+        }
+    </style>
+}
+>>>>>>> af1390e77d894cba1caa7f289628394d43fe3ee0

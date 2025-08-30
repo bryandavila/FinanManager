@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Gestión de presupuestos";
+}
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+@section PageScripts {
+    <script src="~/js/GestionPresupuesto.js"></script>
+}
+
+<!-- Script de inactividad -->
+<script src="~/js/inactivityTimer.js"></script>
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gestión de presupuestos</h4>
+        </div>
+    </div>
+
+    <!-- Opciones de Gestión -->
+    <div class="row">
+        <!-- Crear nuevo presupuesto -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Crear nuevo presupuesto</h5>
+                    <p class="card-text">Accede al formulario para crear un presupuesto para el próximo período.</p>
+                    <a href="/CrearPresupuesto/Index" class="btn btn-primary">Crear presupuesto</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ver presupuestos enviados -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ver presupuestos enviados</h5>
+                    <p class="card-text">Consulta el estado de los presupuestos enviados.</p>
+                    <a href="/VerPresupuesto/Index" class="btn btn-info">Ver presupuestos enviados</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ver presupuestos rechazados -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ver presupuestos rechazados</h5>
+                    <p class="card-text">Consulta el estado de los presupuestos rechazados.</p>
+                    <a href="/VerPresupuesto/Rechazados" class="btn btn-danger">Ver presupuestos rechazados</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones de presupuestos -->
+	<!--   <div class="row">
+        <div class="col-12">
+            <h5>Notificaciones</h5>
+            <div class="alert alert-success">
+                <strong>Presupuesto Aprobado:</strong> Tu presupuesto ha sido aprobado.
+            </div>
+            <div class="alert alert-danger">
+                <strong>Presupuesto Rechazado:</strong> Tu presupuesto ha sido rechazado. Revisa los motivos de rechazo.
+            </div>
+            <div class="alert alert-warning">
+                <strong>Presupuesto Pendiente:</strong> Tu presupuesto está pendiente de revisión.
+            </div>
+        </div>
+    </div>
+	</div> -->

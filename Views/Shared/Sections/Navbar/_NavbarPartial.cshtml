@@ -1,0 +1,187 @@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@{
+    var currentPage = Context.Request.Path.ToString(); // Convierte PathString a string
+    var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value; // Obtener el correo del usuario
+    var userPhoto = User.Claims.FirstOrDefault(c => c.Type == "PhotoUrl")?.Value ?? "~/img/avatars/usuario.png"; // Obtener la foto del usuario
+}
+
+<div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+    <!-- Búsqueda -->
+    <div class="navbar-nav align-items-center">
+        <div class="nav-item d-flex align-items-center">
+            <i class="bx bx-search bx-md"></i>
+            <input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Buscar..." aria-label="Buscar...">
+        </div>
+    </div>
+    <!-- /Búsqueda -->
+
+    <ul class="navbar-nav flex-row align-items-center ms-auto">
+        <!-- Campanita de notificaciones -->
+        <li class="nav-item dropdown d-flex align-items-center me-3">
+            <a class="nav-link p-0 position-relative d-flex align-items-center justify-content-center"
+               href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false"
+               style="width: 40px; height: 40px;">
+                <i class="bx bx-bell bx-md"></i>
+                <span class="badge bg-danger rounded-circle position-absolute top-0 end-0 translate-middle"
+                      style="font-size: 0.8rem; padding: 0.3rem 0.4rem;" id="notificationCount">0</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" id="notificationDropdown">
+                <!-- Las notificaciones se cargarán aquí dinámicamente -->
+            </ul>
+        </li>
+        <!--/ Campanita de notificaciones -->
+        <!-- Usuario -->
+        <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+                    <img src="@Url.Content(userPhoto)" alt class="w-px-40 h-auto rounded-circle">
+                </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0);">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar avatar-online">
+                                    <img src="@Url.Content(userPhoto)" alt class="w-px-40 h-auto rounded-circle">
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">@userEmail</h6>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li><div class="dropdown-divider my-1"></div></li>
+				<li><a class="dropdown-item" href="/Perfil/Editar"><i class="bx bx-user bx-md me-2"></i> <span>Mi Perfil</span></a></li>
+                <li><div class="dropdown-divider my-1"></div></li>
+                <li>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="menu-link" style="display: inline;">
+                        <button type="submit" class="btn btn-link p-0" style="background: none; border: none; color: inherit;">
+                            <i class="menu-icon tf-icons bx bx-log-out"></i>
+                            <div>Cerrar Sesión</div>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+        <!--/ Usuario -->
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Función para actualizar el contador de notificaciones
+        function updateNotificationCount() {
+            fetch('@Url.Action("GetNotificationCount", "Notifications")')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al obtener el conteo de notificaciones');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Respuesta del servidor:", data); // Log para depuración
+
+                    // Asegúrate de que "data" sea un número
+                    if (typeof data === 'number') {
+                        document.getElementById('notificationCount').textContent = data;
+                    } else {
+                        console.error('El conteo de notificaciones no es un número:', data);
+                        document.getElementById('notificationCount').textContent = '0'; // Muestra 0 en caso de error
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener el conteo de notificaciones:', error);
+                    document.getElementById('notificationCount').textContent = '0'; // Muestra 0 en caso de error
+                });
+        }
+
+        // Función para cargar las notificaciones en el dropdown
+        function loadNotifications() {
+            fetch('@Url.Action("GetNotifications", "Notifications")')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al obtener notificaciones');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const dropdown = document.getElementById('notificationDropdown');
+                    dropdown.innerHTML = ''; // Limpia el dropdown
+
+                    if (data.error) {
+                        // Si hay un error, muestra un mensaje
+                        const errorItem = document.createElement('li');
+                        errorItem.innerHTML = `<a class="dropdown-item">${data.error}</a>`;
+                        dropdown.appendChild(errorItem);
+                        return;
+                    }
+
+                    if (data.length === 0) {
+                        // Si no hay notificaciones, muestra un mensaje
+                        const noNotificationsItem = document.createElement('li');
+                        noNotificationsItem.innerHTML = `<a class="dropdown-item">No hay notificaciones</a>`;
+                        dropdown.appendChild(noNotificationsItem);
+                        return;
+                    }
+
+                    // Limita la vista previa a las últimas 3 notificaciones
+                    const previewNotifications = data.slice(0, 3);
+
+                    // Si hay notificaciones, las muestra
+                    previewNotifications.forEach(notification => {
+                        console.log("Notificación recibida:", notification); // Depuración
+                        const NotificationMessage = notification.notificationMessage || "Sin mensaje";
+                        const role_name = notification.role_name || "Sin rol";
+
+                        const notificationItem = document.createElement('li');
+                        notificationItem.innerHTML = `
+                            <a class="dropdown-item" href="@Url.Action("Index", "Notifications")">
+                                <i class="bx bx-check-circle bx-md me-2"></i>
+                                <span>${NotificationMessage}</span>
+                                <small class="d-block text-muted">${role_name}</small>
+                            </a>
+                        `;
+                        dropdown.appendChild(notificationItem);
+                    });
+
+                    // Agrega el enlace "Ver todas las notificaciones"
+                    const viewAllItem = document.createElement('li');
+                    viewAllItem.innerHTML = `
+                        <div class="dropdown-divider my-1"></div>
+                        <li><a class="dropdown-item text-center" href="@Url.Action("Index", "Notifications")">Ver todas las notificaciones</a></li>
+                    `;
+                    dropdown.appendChild(viewAllItem);
+                })
+                .catch(error => {
+                    console.error('Error al obtener notificaciones:', error);
+                    const dropdown = document.getElementById('notificationDropdown');
+                    dropdown.innerHTML = `<li><a class="dropdown-item">Error al cargar notificaciones</a></li>`;
+                });
+        }
+
+        // Llama a las funciones al cargar la página
+        updateNotificationCount();
+        loadNotifications();
+
+        // Actualiza cada X segundos (opcional)
+        setInterval(updateNotificationCount, 60000); // 60 segundos
+        setInterval(loadNotifications, 60000); // 60 segundos
+    });
+</script>
+
+<style>
+    .dropdown-menu {
+        max-width: 300px; /* Ancho máximo del dropdown */
+    }
+
+    .dropdown-item {
+        white-space: normal; /* Permite que el texto se ajuste */
+    }
+
+        .dropdown-item small {
+            color: #6c757d; /* Color para el texto secundario */
+        }
+</style>

@@ -1,0 +1,158 @@
+@model List<FinanManager.Models.GastoPorCategoriaViewModel>
+
+@{
+	ViewData["Title"] = "Desglose de Gastos por Categoría";
+}
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+	<script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+
+@section PageScripts {
+	<script src="~/js/DesgloseGastos.js"></script>
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Desglose de Gastos por Categoría</h4>
+		</div>
+	</div>
+
+	<!-- Filtros Avanzados -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Filtros Avanzados</h5>
+					<form id="filtroForm" onsubmit="return false;">
+						<div class="row">
+							<div class="col-md-4 mb-3">
+								<label for="categoria" class="form-label">Categoría</label>
+								<select id="categoria" name="categoria" class="form-select">
+									<option value="">Todas</option>
+									<option value="441">Gastos del Personal</option>
+									<option value="442">Gastos Servicios Externos</option>
+									<option value="443">Gastos Movilidad y Comunicación</option>
+									<option value="444">Gastos Infraestructura</option>
+									<option value="445">Gastos Generales</option>
+								</select>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label for="fechaDesde" class="form-label">Fecha Desde</label>
+								<input type="date" id="fechaDesde" name="fechaDesde" class="form-control">
+							</div>
+							<div class="col-md-4 mb-3">
+								<label for="fechaHasta" class="form-label">Fecha Hasta</label>
+								<input type="date" id="fechaHasta" name="fechaHasta" class="form-control">
+							</div>
+						</div>
+						<button type="button" class="btn btn-primary" onclick="aplicarFiltros()">Aplicar Filtros</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Desglose de Gastos por Categoría -->
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Gastos por Categoría</h5>
+					<div class="table-responsive">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Nombre del Gasto</th>
+									<th>Categoría</th>
+									<th>Subcategoría</th>
+									<th>Cantidad</th>
+									<th>Justificación</th>
+									<th>Fecha</th>
+								</tr>
+							</thead>
+							<tbody id="gastosTableBody">
+								@if (!Model.Any() || !Model.Any(c => c.Gastos.Any()))
+								{
+									<tr>
+										<td colspan="6" class="text-center text-muted">No hay datos para mostrar</td>
+									</tr>
+								}
+								else
+								{
+									@foreach (var categoria in Model)
+									{
+										foreach (var gasto in categoria.Gastos)
+										{
+											<tr data-categoria="@categoria.Categoria">
+												<td>@gasto.Justificacion</td>
+												<td>@categoria.NombreCategoria</td>
+												<td>@categoria.NombreCuentaHija</td>
+												<td>@gasto.Total</td>
+												<td>@gasto.Justificacion</td>
+												<td data-fecha="@gasto.Fecha.ToString("yyyy-MM-dd")">@gasto.Fecha.ToShortDateString()</td>
+											</tr>
+										}
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function aplicarFiltros() {
+		var categoria = document.getElementById("categoria").value;
+		var fechaDesde = document.getElementById("fechaDesde").value;
+		var fechaHasta = document.getElementById("fechaHasta").value;
+
+		var rows = document.querySelectorAll("#gastosTableBody tr[data-categoria]");
+		var algunaVisible = false;
+
+		rows.forEach(function (row) {
+			var categoriaRow = row.getAttribute("data-categoria");
+			var fechaRow = row.querySelector("td[data-fecha]").getAttribute("data-fecha");
+
+			var showRow = true;
+
+			if (categoria && categoria !== categoriaRow) {
+				showRow = false;
+			}
+
+			if (fechaDesde && fechaRow < fechaDesde) {
+				showRow = false;
+			}
+
+			if (fechaHasta && fechaRow > fechaHasta) {
+				showRow = false;
+			}
+
+			row.style.display = showRow ? "" : "none";
+			if (showRow) algunaVisible = true;
+		});
+
+		var mensajeFila = document.querySelector("#gastosTableBody tr.no-data");
+
+		if (!algunaVisible) {
+			if (!mensajeFila) {
+				var newRow = document.createElement("tr");
+				newRow.classList.add("no-data");
+				newRow.innerHTML = '<td colspan="6" class="text-center text-muted">No hay datos para mostrar</td>';
+				document.querySelector("#gastosTableBody").appendChild(newRow);
+			}
+		} else {
+			if (mensajeFila) {
+				mensajeFila.remove();
+			}
+		}
+	}
+</script>

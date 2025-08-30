@@ -1,0 +1,435 @@
+@model FinanManager.Models.User
+
+
+
+@{
+    string classAlerta = string.Empty;
+}
+
+
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios y Permisos";
+
+    var roles = ViewBag.Roles as List<SelectListItem> ?? new List<SelectListItem>
+    {
+        new SelectListItem { Value = "1", Text = "Administrador" },
+        new SelectListItem { Value = "2", Text = "Jefe Financiero" },
+        new SelectListItem { Value = "3", Text = "Jefe Operaciones" },
+        new SelectListItem { Value = "4", Text = "TI" },
+        new SelectListItem { Value = "5", Text = "Plataformas" },
+        new SelectListItem { Value = "6", Text = "Seguros" },
+        new SelectListItem { Value = "7", Text = "Cobros" },
+        new SelectListItem { Value = "8", Text = "UEA" },
+        new SelectListItem { Value = "9", Text = "Crédito" },
+        new SelectListItem { Value = "10", Text = "SBD" },
+        new SelectListItem { Value = "11", Text = "Contabilidad" },
+        new SelectListItem { Value = "12", Text = "Captación" },
+        new SelectListItem { Value = "13", Text = "Medios Electrónicos" },
+        new SelectListItem { Value = "14", Text = "Auditoría Interna" },
+        new SelectListItem { Value = "15", Text = "Oficialía de Cumplimiento" },
+        new SelectListItem { Value = "16", Text = "Unidad de Riesgos" },
+        new SelectListItem { Value = "17", Text = "Gerencias" },
+        new SelectListItem { Value = "18", Text = "Recursos Humanos" },
+        new SelectListItem { Value = "19", Text = "Inteligencia Comercial" },
+        new SelectListItem { Value = "20", Text = "Mercadeo" },
+        new SelectListItem { Value = "21", Text = "Contact Center" }
+    };
+
+    var estados = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "1", Text = "Activo" },
+        new SelectListItem { Value = "0", Text = "Inactivo" }
+    };
+}
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/GestionUsuarios.js"></script>
+    <script>
+        document.getElementById("csvFile").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split("\n").filter(line => line.trim() !== ""); // Evitar líneas vacías
+
+                if (lines.length > 1) {
+                    document.getElementById("previewTable").classList.remove("d-none");
+                    const headers = lines[0].split(",");
+                    const headerRow = document.getElementById("previewHeader");
+                    headerRow.innerHTML = headers.map(h => `<th>${h.trim()}</th>`).join("");
+
+                    const previewBody = document.getElementById("previewBody");
+                    previewBody.innerHTML = "";
+                    for (let i = 1; i < Math.min(6, lines.length); i++) { // Máx 5 filas
+                        const row = lines[i].split(",");
+                        previewBody.innerHTML += `<tr>${row.map(cell => `<td>${cell.trim()}</td>`).join("")}</tr>`;
+                    }
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+}
+
+//Crear usuarios
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gestión de Usuarios y Permisos</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Crear Usuario Formulario -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Nuevo Usuario</h5>
+                    <form asp-action="Create" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Nombre</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="LastName" class="form-label">Apellido</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="UserEmail" class="form-label">Correo Electrónico</label>
+                            <input asp-for="UserEmail" class="form-control" />
+                            <span asp-validation-for="UserEmail" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="role_ID" class="form-label">Rol</label>
+                            <select asp-for="role_ID" class="form-select" asp-items="ViewBag.Roles" required></select>
+                            <span asp-validation-for="role_ID" class="text-danger"></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="Administrador" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cargar CSV -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Cargar Usuarios desde CSV</h5>
+                    <form asp-action="CargarCSV" method="post" enctype="multipart/form-data" id="formCSV">
+                        <div class="mb-3">
+                            <label for="csvFile" class="form-label">Archivo CSV</label>
+                            <input type="file" id="csvFile" name="file" class="form-control" accept=".csv" required>
+                            <div id="fileError" class="text-danger mt-2"></div>
+                        </div>
+
+                        <!-- Previsualización -->
+                        <div class="mb-3">
+                            <label class="form-label">Datos a insertar</label>
+                            <table class="table table-bordered table-sm d-none" id="previewTable">
+                                <thead>
+                                    <tr id="previewHeader"></tr>
+                                </thead>
+                                <tbody id="previewBody"></tbody>
+                            </table>
+                        </div>
+
+                        <button type="submit" id="btnCargarCSV" class="btn btn-primary">Cargar CSV</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Script para previsualización y validación -->
+    <script>
+        document.getElementById('csvFile').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            var fileError = document.getElementById('fileError');
+            var previewTable = document.getElementById('previewTable');
+            var previewHeader = document.getElementById('previewHeader');
+            var previewBody = document.getElementById('previewBody');
+            var btnCargarCSV = document.getElementById('btnCargarCSV');
+
+            // Limpiar mensajes de error y previsualización anteriores
+            fileError.textContent = '';
+            previewHeader.innerHTML = '';
+            previewBody.innerHTML = '';
+            previewTable.classList.add('d-none');
+            btnCargarCSV.disabled = false;
+
+            if (!file) {
+                fileError.textContent = 'Por favor, seleccione un archivo CSV.';
+                btnCargarCSV.disabled = true;
+                return;
+            }
+
+            if (!file.name.endsWith('.csv')) {
+                fileError.textContent = 'El archivo debe tener la extensión .csv.';
+                btnCargarCSV.disabled = true;
+                return;
+            }
+
+            // Validar tamaño del archivo
+            if (file.size > 5 * 1024 * 1024) {
+                fileError.textContent = 'El archivo no debe exceder los 5 MB.';
+                btnCargarCSV.disabled = true;
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var text = e.target.result;
+                var rows = text.split('\n').map(row => row.trim()).filter(row => row.length > 0);
+
+                if (rows.length < 2) {
+                    fileError.textContent = 'El archivo CSV está vacío o solo tiene encabezados.';
+                    btnCargarCSV.disabled = true;
+                    return;
+                }
+
+                var header = rows[0].split(',');
+                var requiredColumns = ["Name", "LastName", "UserEmail"];
+                var missingColumns = requiredColumns.filter(col => !header.includes(col));
+
+                if (missingColumns.length > 0) {
+                    fileError.textContent = `Faltan columnas requeridas: ${missingColumns.join(", ")}.`;
+                    btnCargarCSV.disabled = true;
+                    return;
+                }
+
+                // Mostrar encabezados
+                header.forEach(column => {
+                    var th = document.createElement('th');
+                    th.textContent = column.trim();
+                    previewHeader.appendChild(th);
+                });
+
+                var hasError = false;
+                rows.slice(1).forEach((row, index) => {
+                    var tr = document.createElement('tr');
+                    var cells = row.split(',');
+
+                    if (cells.length !== header.length) {
+                        fileError.textContent = `Error en la fila ${index + 2}: número incorrecto de columnas.`;
+                        hasError = true;
+                        return;
+                    }
+
+                    // Validar datos vacíos
+                    var emptyFields = cells.map((cell, i) => cell.trim() === "" ? header[i] : null).filter(x => x);
+                    if (emptyFields.length > 0) {
+                        fileError.textContent = `Error en la fila ${index + 2}: campos vacíos en (${emptyFields.join(", ")}).`;
+                        hasError = true;
+                        return;
+                    }
+
+                    cells.forEach(cell => {
+                        var td = document.createElement('td');
+                        td.textContent = cell.trim();
+                        tr.appendChild(td);
+                    });
+                    previewBody.appendChild(tr);
+                });
+
+                if (hasError) {
+                    btnCargarCSV.disabled = true;
+                } else {
+                    previewTable.classList.remove('d-none');
+                    fileError.textContent = '';
+                    btnCargarCSV.disabled = false;
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+
+
+
+
+    <style>
+        /* Estilo del Popup */
+        #editPopup {
+            display: none; /* Ocultar por defecto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+        }
+    </style>
+
+
+    <script>
+        let users = [];
+        let counter = 1;
+        let currentEditId = null;
+
+        function renderUsers() {
+            const userTable = document.getElementById("userTable");
+            userTable.innerHTML = users.map(user => `
+                        <tr>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role}</td>
+                            <td>${user.status}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editUser(${user.id})">Editar</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Eliminar</button>
+                                ${user.status === "Activo" ? `<button class="btn btn-secondary btn-sm" onclick="toggleUserStatus(${user.id}, 'Bloqueado')">Bloquear</button>` : `<button class="btn btn-success btn-sm" onclick="toggleUserStatus(${user.id}, 'Activo')">Activar</button>`}
+                            </td>
+                        </tr>`).join("");
+        }
+
+        function addUser() {
+            const name = document.getElementById("userName").value;
+            const email = document.getElementById("userEmail").value;
+            const password = document.getElementById("userPassword").value;
+            const role = document.getElementById("userRole").value;
+
+            if (!name || !email || !password || !role) {
+                alert("Por favor, complete todos los campos.");
+                return;
+            }
+
+            users.push({
+                id: counter++,
+                name: name,
+                email: email,
+                password: password,
+                role: role,
+                status: "Activo"
+            });
+
+            renderUsers();
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById("userName").value = "";
+            document.getElementById("userEmail").value = "";
+            document.getElementById("userPassword").value = "";
+            document.getElementById("userRole").value = "";
+        }
+
+        function editUser(id) {
+            currentEditId = id;
+            const user = users.find(user => user.id === id);
+
+            document.getElementById("editUserName").value = user.name;
+            document.getElementById("editUserEmail").value = user.email;
+            document.getElementById("editUserRole").value = user.role;
+
+            document.getElementById("editPopup").style.display = "flex";
+        }
+
+        function saveUserEdits() {
+            const name = document.getElementById("editUserName").value;
+            const email = document.getElementById("editUserEmail").value;
+            const role = document.getElementById("editUserRole").value;
+
+            if (!name || !email || !role) {
+                alert("Por favor, complete todos los campos.");
+                return;
+            }
+
+            const user = users.find(user => user.id === currentEditId);
+            user.name = name;
+            user.email = email;
+            user.role = role;
+
+            renderUsers();
+            closeEditPopup();
+        }
+
+        function closeEditPopup() {
+            document.getElementById("editPopup").style.display = "none";
+        }
+
+        function deleteUser(id) {
+            users = users.filter(user => user.id !== id);
+            renderUsers();
+        }
+
+        function toggleUserStatus(id, status) {
+            const user = users.find(user => user.id === id);
+            user.status = status;
+            renderUsers();
+        }
+
+        function loadCSV() {
+            const file = document.getElementById("csvFile").files[0];
+
+            if (!file) {
+                alert("Por favor, seleccione un archivo CSV.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = e.target.result;
+                const lines = data.split("\n");
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].split(",");
+
+                    if (line.length === 4) {
+                        users.push({
+                            id: counter++,
+                            name: line[0],
+                            email: line[1],
+                            password: line[2],
+                            role: line[3],
+                            status: "Activo"
+                        });
+                    }
+                     else (alert("El archivo debe de contener 4 columnas al menos"););
+                }
+
+                renderUsers();
+            };
+            reader.readAsText(file);
+        }
+
+                renderUsers();
+            };
+            reader.readAsText(file);
+        }
+
+        renderUsers();
+
+
+
+
+
+
+
+
+    </script>

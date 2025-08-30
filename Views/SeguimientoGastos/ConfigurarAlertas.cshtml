@@ -1,0 +1,102 @@
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Título de la página -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold py-3 mb-4">Gestión de Alertas</h4>
+        </div>
+    </div>
+
+    <!-- Formulario de Configuración de Alertas -->
+    <div class="card mb-4">
+        <!-- Agregar un fondo blanco y margen inferior -->
+        <div class="card-body">
+            <form id="alertConfigForm" method="post" action="@Url.Action("ConfigurarAlertas", "SeguimientoGastos")">
+                <!-- Campo oculto para el RoleID -->
+                <input type="hidden" id="roleId" name="RoleId" value="@ViewBag.RoleID" />
+
+                <div class="mb-3">
+                    <label for="spendingLimit" class="form-label">Límite de Gasto</label>
+                    <input type="number" class="form-control" id="spendingLimit" name="SpendingLimit" placeholder="Ingrese el límite de gasto" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nearLimitValue" class="form-label">Valor para Alerta de Cerca del Límite</label>
+                    <input type="number" class="form-control" id="nearLimitValue" name="NearLimitValue" placeholder="Ingrese el valor para alerta de cerca del límite" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tipo de Alerta</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="nearLimitAlert" name="NearLimitAlert" value="1">
+                        <input type="hidden" name="NearLimitAlert" value="0" />
+                        <label class="form-check-label" for="nearLimitAlert">Alerta cuando esté cerca del límite</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="exceedLimitAlert" name="ExceedLimitAlert" value="1">
+                        <input type="hidden" name="ExceedLimitAlert" value="0" />
+                        <label class="form-check-label" for="exceedLimitAlert">Alerta cuando exceda el límite</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Historial de Alertas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Alertas Configuradas</h5>
+                    <p class="card-text">Alerta Activa Configurada</p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Límite de Gasto</th>
+                                <th>Valor para Alerta</th>
+                                <th>Alerta Cerca del Límite</th>
+                                <th>Alerta Exceder Límite</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var alertConfig in Model)
+                            {
+                                <tr>
+                                    <td>@alertConfig.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@alertConfig.SpendingLimit</td>
+                                    <td>@alertConfig.NearLimitValue</td>
+                                    <td>
+                                        @if (alertConfig.NearLimitAlert == 0)
+                                        {
+                                            @:Desactivada
+                                        }
+                                        else
+                                        {
+                                            @:Activada
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (alertConfig.ExceedLimitAlert == 0)
+                                        {
+                                            @:Desactivada
+                                        }
+                                        else
+                                        {
+                                            @:Activada
+                                        }
+                                    </td>
+                                    <td>
+                                        <form asp-action="EliminarAlerta" asp-controller="SeguimientoGastos" method="post">
+                                            <input type="hidden" name="id" value="@alertConfig.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

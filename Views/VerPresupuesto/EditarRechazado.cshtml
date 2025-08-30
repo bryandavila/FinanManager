@@ -1,0 +1,153 @@
+@model FinanManager.Models.PresupuestoViewModel
+
+@{
+	ViewData["Title"] = "Editar presupuesto rechazado";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+	<div class="row">
+		<div class="col-12">
+			<h4 class="fw-bold py-3 mb-4">Editar presupuesto rechazado</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<form asp-action="EditarRechazado" method="post">
+						<input type="hidden" asp-for="Id" />
+						<input type="hidden" asp-for="Tipo" />
+						<input type="hidden" asp-for="MotivoRechazo" /> <!-- Campo oculto para MotivoRechazo -->
+						<!-- Campos comunes -->
+						<div class="form-group">
+							<label asp-for="Descripcion" class="control-label">Descripción</label>
+							<input asp-for="Descripcion" class="form-control" />
+							<span asp-validation-for="Descripcion" class="text-danger"></span>
+						</div>
+
+						<!-- Campos específicos según el tipo de presupuesto -->
+						@if (Model.Tipo == "Bien")
+						{
+							<div class="form-group">
+								<label asp-for="Cantidad" class="control-label">Cantidad</label>
+								<input asp-for="Cantidad" class="form-control" />
+								<span asp-validation-for="Cantidad" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="MontoUnitario" class="control-label">Monto Unitario</label>
+								<input asp-for="MontoUnitario" class="form-control" />
+								<span asp-validation-for="MontoUnitario" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="Monto" class="control-label">Total</label>
+								<input asp-for="Monto" class="form-control" readonly />
+							</div>
+
+							<!-- Periodo de ejecución (solo para Bienes) -->
+							<div class="form-group">
+								<label>Periodo de Ejecución</label>
+								<div>
+									<input type="checkbox" asp-for="Enero" /> Enero
+									<input type="checkbox" asp-for="Febrero" /> Febrero
+									<input type="checkbox" asp-for="Marzo" /> Marzo
+									<input type="checkbox" asp-for="Abril" /> Abril
+									<input type="checkbox" asp-for="Mayo" /> Mayo
+									<input type="checkbox" asp-for="Junio" /> Junio
+									<input type="checkbox" asp-for="Julio" /> Julio
+									<input type="checkbox" asp-for="Agosto" /> Agosto
+									<input type="checkbox" asp-for="Septiembre" /> Septiembre
+									<input type="checkbox" asp-for="Octubre" /> Octubre
+									<input type="checkbox" asp-for="Noviembre" /> Noviembre
+									<input type="checkbox" asp-for="Diciembre" /> Diciembre
+								</div>
+							</div>
+						}
+						else if (Model.Tipo == "Gasto")
+						{
+							<div class="form-group">
+								<label asp-for="Justificacion" class="control-label">Justificación</label>
+								<textarea asp-for="Justificacion" class="form-control"></textarea>
+								<span asp-validation-for="Justificacion" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="Monto" class="control-label">Total</label>
+								<input asp-for="Monto" class="form-control" />
+								<span asp-validation-for="Monto" class="text-danger"></span>
+							</div>
+
+							<!-- Periodo de ejecución (solo para Gastos) -->
+							<div class="form-group">
+								<label>Periodo de Ejecución</label>
+								<div>
+									<input type="checkbox" asp-for="Enero" /> Enero
+									<input type="checkbox" asp-for="Febrero" /> Febrero
+									<input type="checkbox" asp-for="Marzo" /> Marzo
+									<input type="checkbox" asp-for="Abril" /> Abril
+									<input type="checkbox" asp-for="Mayo" /> Mayo
+									<input type="checkbox" asp-for="Junio" /> Junio
+									<input type="checkbox" asp-for="Julio" /> Julio
+									<input type="checkbox" asp-for="Agosto" /> Agosto
+									<input type="checkbox" asp-for="Septiembre" /> Septiembre
+									<input type="checkbox" asp-for="Octubre" /> Octubre
+									<input type="checkbox" asp-for="Noviembre" /> Noviembre
+									<input type="checkbox" asp-for="Diciembre" /> Diciembre
+								</div>
+							</div>
+						}
+						else if (Model.Tipo == "Proyecto")
+						{
+							<div class="form-group">
+								<label asp-for="ValorEstimado" class="control-label">Valor Estimado</label>
+								<input asp-for="ValorEstimado" class="form-control" />
+								<span asp-validation-for="ValorEstimado" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="ViabilidadComercial" class="control-label">Viabilidad Comercial</label>
+								<input asp-for="ViabilidadComercial" class="form-control" />
+								<span asp-validation-for="ViabilidadComercial" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="ViabilidadTecnica" class="control-label">Viabilidad Técnica</label>
+								<input asp-for="ViabilidadTecnica" class="form-control" />
+								<span asp-validation-for="ViabilidadTecnica" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="ViabilidadLegal" class="control-label">Viabilidad Legal</label>
+								<input asp-for="ViabilidadLegal" class="form-control" />
+								<span asp-validation-for="ViabilidadLegal" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="ViabilidadGestion" class="control-label">Viabilidad de Gestión</label>
+								<input asp-for="ViabilidadGestion" class="form-control" />
+								<span asp-validation-for="ViabilidadGestion" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="ViabilidadImpactoAmbiental" class="control-label">Viabilidad de Impacto Ambiental</label>
+								<input asp-for="ViabilidadImpactoAmbiental" class="form-control" />
+								<span asp-validation-for="ViabilidadImpactoAmbiental" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="ViabilidadFinanciera" class="control-label">Viabilidad Financiera</label>
+								<input asp-for="ViabilidadFinanciera" class="form-control" />
+								<span asp-validation-for="ViabilidadFinanciera" class="text-danger"></span>
+							</div>
+						}
+
+						<!-- Motivo de rechazo (solo lectura) -->
+						<div class="form-group">
+							<label asp-for="MotivoRechazo" class="control-label">Motivo de rechazo</label>
+							<textarea asp-for="MotivoRechazo" class="form-control" readonly></textarea>
+						</div>
+
+						<!-- Botones -->
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary">Guardar cambios</button>
+							<a href="/VerPresupuesto/Rechazados" class="btn btn-secondary">Cancelar</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
